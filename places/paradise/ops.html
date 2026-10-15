@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-place="utila-dives">
+<html lang="en" data-place="paradise">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Utila Dives crew</title>
+<title>Paradise crew</title>
 <link rel="stylesheet" href="../../art/tokens.css">
 <style>
   body { margin: 0; font-size: 16px; line-height: 1.45; }
@@ -20,7 +20,7 @@
   .pin .halo { fill: none; stroke: #D9483B; stroke-width: 6; opacity: 0; }
   .pin.alert .halo { opacity: .8; animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
   .pin:focus-visible .halo { opacity: 1; stroke: #FFFFFF; }
-  .pin text { font: 800 22px 'Baloo 2', sans-serif; fill: var(--ink); paint-order: stroke; stroke: #FFFFFF; stroke-width: 7px; stroke-linejoin: round; }
+  .pin text { font: 800 19px 'Baloo 2', sans-serif; fill: var(--ink); }
   @keyframes pulse { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
   .rl { font-family: 'Baloo 2', sans-serif; font-weight: 800; fill: var(--ink); paint-order: stroke; stroke: #FFFFFF; stroke-width: 5px; stroke-linejoin: round; }
   .mapcol { max-width: 760px; }
@@ -59,23 +59,23 @@
 </style>
 </head>
 <body>
-<div class="top"><span class="brand">Utila Dives &middot; crew</span><div class="roles" id="roles"></div></div>
+<div class="top"><span class="brand">Paradise &middot; crew</span><div class="roles" id="roles"></div></div>
 <div class="layout">
   <div class="mapcol">
     <div class="seg" id="floors"></div>
-    <svg class="u-scene" id="scene" viewBox="0 0 1000 1760" role="img" aria-label="Utila Dives from above with status pins for the boat's fuel, the tanks and the fill station."></svg>
+    <svg class="u-scene" id="scene" viewBox="0 0 1440 2480" role="img" aria-label="Paradise from above: confined water, the action area, the boat and dock, the school and rooms, the courtyard, the palapa and restaurant, retail and the tank room, with status bubbles."></svg>
     <div class="u-card panel" id="panel"></div>
   </div>
   <div class="side">
     <div class="phone"><div class="screen"><header><b id="who">Applet</b><span class="u-badge" id="count">0</span></header><div id="applet"></div></div></div>
-    <p class="tools">Sample shop. Changes are shared between tabs on this device so you can watch two roles talk. <button id="reset">Reset the demo</button></p>
+    <p class="tools">Prototype. Changes are shared between tabs on this device so you can watch two roles talk. <button id="reset">Reset the demo</button></p>
   </div>
 </div>
 <script src="../../art/palettes.js"></script>
 <script src="../../art/kit.js"></script>
 <script src="../../art/places.js"></script>
 <script src="../../art/icons.js"></script>
-<script src="layout.js"></script>
+<script src="../../art/josie.js"></script><script src="map.js"></script>
 <script src="ops.js"></script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 /* Island icon tiles, in the manner of Josie's "Menu icons / On the map" board: a soft rounded tile, one object, two or three tones,
    a status shown by shape AND color (a badge with a mark), never color alone.
-   UART.icon(name, opts) -> <svg viewBox="0 0 96 96"> markup.  opts: p = palette (default utila-dives), tone = 'white'|'wash'|'soft', status = 'ok'|'low'|'alert'|'busy'.
+   UART.icon(name, opts) -> <svg viewBox="0 0 96 96"> markup.  opts: p = palette (default paradise), tone = 'white'|'wash'|'soft'|'none', status = 'ok'|'low'|'alert'|'busy'.
    UART.icons.names lists everything. Needs kit.js. Plain ES5. */
 (function (w) {
   'use strict';
-  var U = w.UART, P = U.props, W = U.palettes.world, DEF = U.palettes.places['utila-dives'].light, at = U.at;
+  var U = w.UART, P = U.props, W = U.palettes.world, DEF = U.palettes.places.paradise.light, at = U.at;
   var G = {}, GREY = '#C7CED2', GREYD = '#9AA6AD';
 
   function badge(status) {
@@ -72,9 +72,9 @@
   G.plane = function (p) { return at(48, 52, 0, .27, P.floatplane(p).replace('class="spin"', '')); };
 
   U.icon = function (name, o) {
-    o = o || {}; var p = o.p || DEF, g = G[name], bg = { white: '#FFFFFF', wash: p.wash, soft: p.soft }[o.tone || 'white'];
+    o = o || {}; var p = o.p || DEF, g = G[name], bg = { white: '#FFFFFF', wash: p.wash, soft: p.soft, none: null }[o.tone || 'white'];
     if (!g) { return ''; }
-    return '<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="88" height="88" rx="26" fill="' + bg + '"/>' + g(p) + badge(o.status) + '</svg>';
+    return '<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">' + (bg ? '<rect x="4" y="4" width="88" height="88" rx="26" fill="' + bg + '"/>' : '') + g(p) + badge(o.status) + '</svg>';
   };
   U.icons = { names: Object.keys(G) };
 })(window);

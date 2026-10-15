@@ -40,9 +40,9 @@
     return h;
   };
 
-  /* Utila Dives from above, simplified: the yellow-counter shop with wetsuit rail, tank rack, the yard with the rinse tank, its dock out to the right. ~330 x 240. */
+  /* Paradise from above, simplified: the blue-counter shop with wetsuit rail, tank rack, the yard with the rinse tank, its dock out to the right. ~330 x 240. */
   P.placeDives = function (p) {
-    p = p || U.palettes.places['utila-dives'].light;
+    p = p || U.palettes.places.paradise.light;
     var h = '', i, suits = [p.pop, p.accent, '#E9735C'];
     h += '<rect x="30" y="52" width="150" height="52" rx="6" fill="' + W.deck + '"/>';
     for (i = 44; i < 176; i += 18) { h += '<rect x="' + i + '" y="52" width="2.5" height="52" fill="' + W['deck-line'] + '"/>'; }

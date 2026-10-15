@@ -127,50 +127,50 @@
   --line: #2A4A66;
 }
 
-/* Utila Dives: tank yellow and lagoon teal, a boat leaving at eight */
-[data-place="utila-dives"] {
-  --ink: #14383E;
-  --ink2: #4F6F73;
-  --paper: #FFF9EC;
+/* Paradise: blue, white wood and black dive gear; an SSI and PADI dive shop with a hostel */
+[data-place="paradise"] {
+  --ink: #1F3A4D;
+  --ink2: #557085;
+  --paper: #F7FAFC;
   --card: #FFFFFF;
-  --accent: #F2B632;
-  --accent-ink: #2B2000;
-  --accent-deep: #8A5C00;
-  --edge: #C98F10;
-  --soft: #FBDE8F;
-  --wash: #FFF1CC;
-  --pop: #17909B;
-  --line: #EDE1C6;
+  --accent: #3E86B8;
+  --accent-ink: #FFFFFF;
+  --accent-deep: #2E6E9E;
+  --edge: #2B5F86;
+  --soft: #BFE0F2;
+  --wash: #E6F2FA;
+  --pop: #2E3238;
+  --line: #E3E7EA;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) [data-place="utila-dives"], :root:not([data-theme="light"])[data-place="utila-dives"] {
-    --ink: #F4F1E6;
-    --ink2: #9FBFC2;
-    --paper: #0B2327;
-    --card: #123238;
-    --accent: #F2B632;
-    --accent-ink: #2B2000;
-    --accent-deep: #F2B632;
-    --edge: #B98412;
-    --soft: #7A5F18;
-    --wash: #0F2B30;
-    --pop: #4CC3CE;
-    --line: #25484F;
+  :root:not([data-theme="light"]) [data-place="paradise"], :root:not([data-theme="light"])[data-place="paradise"] {
+    --ink: #EAF2F8;
+    --ink2: #9DB4C6;
+    --paper: #0E1E2A;
+    --card: #16303F;
+    --accent: #7FB8DE;
+    --accent-ink: #0B2232;
+    --accent-deep: #7FB8DE;
+    --edge: #4F8FC0;
+    --soft: #2C5A7A;
+    --wash: #12293A;
+    --pop: #C9D3DA;
+    --line: #2A4A5E;
   }
 }
-[data-theme="dark"] [data-place="utila-dives"], [data-theme="dark"][data-place="utila-dives"] {
-  --ink: #F4F1E6;
-  --ink2: #9FBFC2;
-  --paper: #0B2327;
-  --card: #123238;
-  --accent: #F2B632;
-  --accent-ink: #2B2000;
-  --accent-deep: #F2B632;
-  --edge: #B98412;
-  --soft: #7A5F18;
-  --wash: #0F2B30;
-  --pop: #4CC3CE;
-  --line: #25484F;
+[data-theme="dark"] [data-place="paradise"], [data-theme="dark"][data-place="paradise"] {
+  --ink: #EAF2F8;
+  --ink2: #9DB4C6;
+  --paper: #0E1E2A;
+  --card: #16303F;
+  --accent: #7FB8DE;
+  --accent-ink: #0B2232;
+  --accent-deep: #7FB8DE;
+  --edge: #4F8FC0;
+  --soft: #2C5A7A;
+  --wash: #12293A;
+  --pop: #C9D3DA;
+  --line: #2A4A5E;
 }
 
 /* area Utila (a boat's own tint inside Tripwrights) */

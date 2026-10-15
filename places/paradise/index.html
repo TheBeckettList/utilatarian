@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" data-place="paradise">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paradise</title>
+<meta name="description" content="SSI and PADI dive shop and hostel on the bay in Utila, next to Josie's.">
+<link rel="stylesheet" href="../../art/tokens.css">
+<style>
+  body { margin: 0; font-size: 17px; line-height: 1.5; }
+  .top { display: flex; align-items: center; padding: 10px 18px; background: var(--card); }
+  .brand { font-family: var(--u-display); font-weight: 800; font-size: 26px; color: var(--accent-deep); flex: 1; letter-spacing: -.01em; }
+  .brand small { font-family: var(--u-body); font-size: 14px; color: var(--ink2); font-weight: 700; margin-left: 8px; }
+  .top a { color: var(--ink2); font-weight: 700; font-size: 14px; margin-right: 14px; }
+  .stage { position: relative; max-width: 720px; margin: 0 auto; }
+  .stage svg { display: block; width: 100%; height: auto; }
+  .stage .u-sign { position: absolute; right: 3%; top: 36%; width: 30%; min-width: 150px; padding: 10px 6px; box-sizing: border-box; }
+  .stage .u-sign b { font-size: clamp(16px, 3.4vw, 26px); }
+  .stage .u-sign small { font-size: clamp(11px, 1.8vw, 14px); }
+  .stage .u-pill { font-size: clamp(11px, 2vw, 15px); padding: 2px 14px; margin-bottom: 4px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 22px 16px 40px; }
+  h2 { font-size: 34px; margin: 12px 0 14px; }
+  .list { display: flex; flex-wrap: wrap; margin: 0 -8px; }
+  .item { box-sizing: border-box; flex: 1 1 300px; margin: 8px; }
+  .item h3 { font-size: 23px; }
+  .item p { margin: 6px 0 12px; color: var(--ink2); }
+  .item .u-chip { margin: 0 6px 6px 0; }
+  .needs { font-size: 14px; font-weight: 800; color: var(--accent-deep); margin-bottom: 8px; }
+  .info { display: flex; flex-wrap: wrap; margin: 8px -8px 0; }
+  .info .u-card { flex: 1 1 300px; margin: 8px; box-sizing: border-box; }
+  .hrs { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .hrs td { padding: 4px 0; } .hrs td:last-child { text-align: right; font-weight: 800; }
+  .hrs tr.today td { color: var(--accent-deep); font-weight: 800; }
+  footer { text-align: center; color: var(--ink2); font-size: 14px; padding: 6px 16px 30px; }
+</style>
+</head>
+<body>
+<div class="top"><span class="brand">Paradise<small>SSI &middot; PADI</small></span><a href="#learn">Courses</a><a href="#where">Hours</a><span class="u-pill" id="open">Open</span></div>
+
+<div class="stage">
+  <svg id="scene" viewBox="0 0 1440 2480" role="img" aria-label="Paradise from above: the confined-water pool and action area, the dive boat at the big dive dock, the school and rooms, the courtyard with bikes and Honda Navis, the palapa, restaurant, retail and tank room. Josie's is next door to the west."></svg>
+  <div class="u-sign"><span class="u-pill" id="signpill">Open</span><b id="signhrs"></b><small id="signdays"></small></div>
+</div>
+
+<div class="wrap">
+  <h2 id="learn">Learn and dive</h2>
+  <div class="list" id="courses"></div>
+  <h2 id="where">Hours and where</h2>
+  <div class="info">
+    <div class="u-card"><span class="u-kicker">Shop hours</span><table class="hrs" id="hrs"></table><p class="u-muted" style="margin:10px 0 0">Island time.</p></div>
+    <div class="u-card"><span class="u-kicker">Find us</span><p style="margin:0 0 10px">On the bay, right next to Josie&rsquo;s. Look for the palapa and the boat at the big dive dock.</p><p class="u-muted" style="margin:0">Dorms, a single, rooms with two fulls, and suites with two queens, a bathroom and A/C upstairs.</p></div>
+  </div>
+</div>
+<footer>Prototype drawn from the owner&rsquo;s sketches. Hours and course details are placeholders until the shop confirms them.</footer>
+
+<script src="../../art/josie.js"></script>
+<script src="map.js"></script>
+<script>
+(function () {
+  'use strict';
+  document.getElementById('scene').innerHTML = UART.paradise.ground({ tanks: { full: 16, empty: 8, filling: 0 } });
+  var BN = { m: 'Morning', a: 'Afternoon', e: 'Evening' }, DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], LONG = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };
+  function mins(s) { var a = s.split(':'); return +a[0] * 60 + +a[1]; }
+  function clock(s) { var a = s.split(':'), h = +a[0]; return (h % 12 || 12) + ':' + a[1] + (h >= 12 ? 'pm' : 'am'); }
+  function islandNow() { var d = new Date(Date.now() - 6 * 3600 * 1000); return { day: DAYS[d.getUTCDay()], m: d.getUTCHours() * 60 + d.getUTCMinutes() }; }
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'place_card.json');
+  xhr.onload = function () {
+    var card; try { card = JSON.parse(xhr.responseText); } catch (e) { return; }
+    var L = card.cert_levels;
+    document.getElementById('courses').innerHTML = card.courses.map(function (c) {
+      return '<div class="u-card item"><h3>' + c.name + '</h3><p>' + c.blurb + '</p><div class="needs">' + (c.needs === 'none' ? 'No card needed' : 'Needs ' + L[c.needs] + ' (any agency)') + (c.days ? ' &middot; ' + c.days + ' days' : '') + '</div>' +
+        (c.agencies[0] === 'any' ? '' : c.agencies.map(function (a) { return '<span class="u-chip on">' + a + '</span>'; }).join('')) +
+        ['m', 'a', 'e'].map(function (k) { return '<span class="u-chip ' + (c.blocks.indexOf(k) > -1 ? '' : 'off') + '">' + BN[k] + '</span>'; }).join('') + '</div>';
+    }).join('');
+    var now = islandNow(), today = card.hours[now.day], open = false, rows = '';
+    if (today && today !== 'closed') { var r = today.split('-'); open = now.m >= mins(r[0]) && now.m < mins(r[1]); }
+    ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(function (d) { var v = card.hours[d]; rows += '<tr class="' + (d === now.day ? 'today' : '') + '"><td>' + LONG[d] + '</td><td>' + (v === 'closed' ? 'Closed' : clock(v.split('-')[0]) + ' – ' + clock(v.split('-')[1])) + '</td></tr>'; });
+    document.getElementById('hrs').innerHTML = rows;
+    ['open', 'signpill'].forEach(function (id) { var el = document.getElementById(id); el.textContent = open ? 'Open now' : 'Closed now'; el.className = 'u-pill' + (open ? '' : ' closed'); });
+    document.getElementById('signhrs').textContent = clock(card.hours.mon.split('-')[0]) + ' – ' + clock(card.hours.mon.split('-')[1]);
+    document.getElementById('signdays').textContent = 'Mon – Sat · Sun till ' + clock(card.hours.sun.split('-')[1]);
+  };
+  xhr.send();
+})();
+</script>
+</body>
+</html>

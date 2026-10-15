@@ -11,7 +11,7 @@
   'use strict';
   var U = w.UART = w.UART || {};
   var W = U.palettes.world;
-  var DEFAULT = U.palettes.places['utila-dives'].light;
+  var DEFAULT = U.palettes.places.paradise.light;
   function pal(p) { return p || DEFAULT; }
   function f(n) { return (+n).toFixed(1); }
 

@@ -10,7 +10,7 @@ feed) that tells them what matters to *them*.
 - **Companion applet:** notifications for your role, plus "your day" for guests. Urgent ones are loud (rose ring, `!!`), routine ones are quiet.
 - **Statuses:** a small fixed vocabulary, same on every shop: `ok` (check), `low` (!), `alert` (!!), `busy` (...).
 
-## Utila Dives (`places/utila-dives/ops.html`, a working prototype)
+## Paradise (`places/paradise/ops.html`, a working prototype)
 | | guest | tank filler | DM | instructor | owner |
 |---|---|---|---|---|---|
 | sees boat departure | yes | yes | yes | yes | yes |
@@ -39,6 +39,6 @@ tiles (`art/icons.js` tints per place), one "your day" feed (room, boat, lunch).
 live it. They are **linked later**; for now they share art, status vocabulary and the applet pattern so nothing needs re-learning.
 
 ## Waiting on you
-- **Your sketch of the shop and the hostel rooms.** The current Utila Dives layout is a placeholder. Icons for beds, bunks, keys and room
+- **Your sketch of the shop and the hostel rooms.** The current Paradise layout is a placeholder. Icons for beds, bunks, keys and room
   status (free / occupied / needs cleaning) are ready in the kit.
 - Who gets which level, and whether a guest can see their own room key status.

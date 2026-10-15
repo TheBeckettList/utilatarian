@@ -71,8 +71,8 @@ not embedded media. **Every place gets its own palette** — Josie's keeps hers,
 the place's colors while the surrounding app stays in its own.
 
 **The shared art kit lives in [`art/`](art/README.md)**: one palette file, generated tokens and components, and
-an ES5 SVG prop library, all derived from Josie's (the finished reference). Tripwrights and the sample shop
-[`places/utila-dives/`](places/utila-dives/) are drawn with it. Regenerate with `node tools/build-art.mjs`.
+an ES5 SVG prop library, all derived from Josie's (the finished reference). Tripwrights and Paradise (a real SSI and PADI shop, drawn from the owner's sketches)
+[`places/paradise/`](places/paradise/) are drawn with it. Regenerate with `node tools/build-art.mjs`.
 
 ## Accounts
 

@@ -1,4 +1,4 @@
-/* Utila Dives ops: the SAME map for everyone, with statuses; what you can see and do depends on your assignment level.
+/* Paradise ops: the SAME map for everyone, with statuses; what you can see and do depends on your assignment level.
    Each person also has a companion applet that gets notifications. Prototype: state lives in this browser (shared across tabs).
    Plain ES5. */
 (function () {
@@ -14,13 +14,13 @@
     { id: 'owner', name: 'Owner', who: 'Owner', rank: 4 }
   ];
   var role = 'dm';
-  try { role = localStorage.getItem('ud-role') || 'dm'; } catch (e) { }
+  try { role = localStorage.getItem('paradise-role') || 'dm'; } catch (e) { }
   function R() { return ROLES.filter(function (r) { return r.id === role; })[0]; }
   var canFlag = function () { return R().rank >= 2; };          /* DM or above: flag fuel, ask for tanks */
   var seesOps = function () { return ['filler', 'dm', 'instructor', 'owner'].indexOf(role) > -1; };    /* tanks, fuel, fill station */
   var seesRooms = function () { return ['desk', 'housekeeping', 'owner'].indexOf(role) > -1; };       /* hostel rooms */
   var floor = 'ground', selRoom = null;
-  var RN = {}; UART.layout.rooms.forEach(function (r) { RN[r.id] = r; });
+  var RN = {}; UART.paradise.rooms.forEach(function (r) { RN[r.id] = r; });
 
   function fresh() {
     return { fuel: 'low', tanks: { full: 6, filling: 0, empty: 18 }, reqs: [], notes: [], seq: 1,
@@ -70,31 +70,39 @@
   }
 
   /* ---- map ---- */
-  function pin(name, icon, status, x, y, label, alert) {
-    var svg = U.icon(icon, { status: status }).replace('<svg ', '<svg x="-36" y="-36" width="72" height="72" ');
-    return '<g class="pin' + (alert ? ' alert' : '') + '" data-pin="' + name + '" tabindex="0" role="button" aria-label="' + label + '" transform="translate(' + x + ',' + y + ')"><circle class="halo" r="46"/>' + svg +
-      '<text y="62" text-anchor="middle">' + label + '</text></g>';
+  var TIPS = {
+    boat: function (l) { return 'Boat fuel: ' + l + '. A divemaster or above can change it.'; },
+    tanks: function (l) { return 'Tank room: ' + l + '. Empties wait here; full tanks go to the boat and the action area.'; },
+    fill: function (l) { return 'Fill station: ' + l + '. Tap to see the requests.'; },
+    room: function (l) { return 'Room ' + l + '. Tap to check in, check out or mark it clean.'; }
+  };
+  /* a status bubble the Josie way: a white circle on a ledge with the object inside, a small pill underneath ("low", "6 full") */
+  function pin(name, icon, status, x, y, label, alert, small) {
+    var k = small ? .95 : 1.1, svg = U.icon(icon, { status: status, tone: 'none' }).replace('<svg ', '<svg x="-38" y="-38" width="76" height="76" '), tw = Math.max(54, label.length * 11 + 22);
+    return '<g class="pin' + (alert ? ' alert' : '') + '" data-pin="' + name + '" tabindex="0" role="button" aria-label="' + label + '" transform="translate(' + x + ',' + y + ') scale(' + k + ')">' +
+      '<title>' + (TIPS[name.split(':')[0]] ? TIPS[name.split(':')[0]](label) : label) + '</title><circle class="halo" r="48"/><ellipse cx="0" cy="54" rx="34" ry="6" fill="#5B3843" opacity=".15"/><circle cy="5" r="42" fill="#D9E2E8"/><circle r="42" fill="#FFFFFF"/><circle r="38" fill="none" stroke="' + U.palettes.places.paradise.light.soft + '" stroke-width="4"/>' + svg +
+      '<rect x="' + (-tw / 2) + '" y="50" width="' + tw + '" height="30" rx="15" fill="#FFFFFF"/><rect x="' + (-tw / 2) + '" y="50" width="' + tw + '" height="30" rx="15" fill="none" stroke="' + (alert ? '#D9483B' : U.palettes.places.paradise.light.soft) + '" stroke-width="3"/><text y="71" text-anchor="middle">' + label + '</text></g>';
   }
   function map() {
     if (floor === 'up') { return mapUp(); }
-    var T = S.tanks, P = U.layout.pins.ground, h, openReq = S.reqs.filter(function (q) { return q.status !== 'done'; }), urgent = openReq.some(function (q) { return q.kind === 'urgent'; });
-    h = U.layout.ground({ tanks: T });
+    var T = S.tanks, P = U.paradise.pins.ground, h, openReq = S.reqs.filter(function (q) { return q.status !== 'done'; }), urgent = openReq.some(function (q) { return q.kind === 'urgent'; });
+    h = U.paradise.ground({ tanks: T });
     if (seesOps()) {
-      h += pin('boat', S.fuel === 'full' ? 'fuelFull' : S.fuel === 'low' ? 'fuelLow' : 'fuelRefill', S.fuel === 'full' ? 'ok' : S.fuel === 'low' ? 'low' : 'alert', P.boat[0] - 110, P.boat[1], S.fuel === 'full' ? 'Fuel full' : S.fuel === 'low' ? 'Fuel low' : 'Refill ASAP', S.fuel === 'refill');
-      h += pin('tanks', T.empty > T.full ? 'tankEmpty' : 'tankFull', T.empty > T.full ? 'low' : 'ok', P.tanks[0], P.tanks[1] - 20, T.full + ' full · ' + T.empty + ' empty' + (T.filling ? ' · ' + T.filling + ' filling' : ''), false);
+      h += pin('boat', S.fuel === 'full' ? 'fuelFull' : S.fuel === 'low' ? 'fuelLow' : 'fuelRefill', S.fuel === 'full' ? 'ok' : S.fuel === 'low' ? 'low' : 'alert', P.boat[0], P.boat[1] + 20, S.fuel === 'full' ? 'Fuel full' : S.fuel === 'low' ? 'Fuel low' : 'Refill ASAP', S.fuel === 'refill');
+      h += pin('tanks', T.empty > T.full ? 'tankEmpty' : 'tankFull', T.empty > T.full ? 'low' : 'ok', P.tanks[0], P.tanks[1] - 30, T.full + ' full · ' + T.empty + ' empty' + (T.filling ? ' · ' + T.filling + ' filling' : ''), false);
       h += pin('fill', 'compressor', openReq.length ? (urgent ? 'alert' : 'low') : (T.filling ? 'busy' : 'ok'), P.fill[0], P.fill[1], openReq.length ? openReq.length + ' to fill' : 'Fill station', urgent);
     }
-    $('scene').setAttribute('viewBox', U.layout.viewGround); $('scene').innerHTML = h;
+    $('scene').setAttribute('viewBox', U.paradise.viewGround); $('scene').innerHTML = h;
   }
   function mapUp() {
-    var h = U.layout.upstairs({ rooms: S.rooms }), P = U.layout.pins.up;
+    var h = U.paradise.upstairs({ rooms: S.rooms }), P = U.paradise.pins.up;
     if (seesRooms()) {
-      UART.layout.rooms.forEach(function (r) {
+      UART.paradise.rooms.forEach(function (r) {
         var s = S.rooms[r.id];
-        h += pin('room:' + r.id, s === 'occupied' ? 'key' : 'bed', s === 'free' ? 'ok' : (s === 'occupied' ? 'busy' : 'low'), P[r.id][0], P[r.id][1] - 6, r.n + (s === 'clean' ? ' clean me' : (s === 'occupied' ? ' in' : ' free')), s === 'clean' && role === 'housekeeping').replace('<svg x="-36" y="-36" width="72" height="72"', '<svg x="-28" y="-28" width="56" height="56"').replace('y="62"', 'y="48"').replace('r="46"', 'r="36"');
+        h += pin('room:' + r.id, s === 'occupied' ? 'key' : 'bed', s === 'free' ? 'ok' : (s === 'occupied' ? 'busy' : 'low'), P[r.id][0], P[r.id][1] - 6, r.n + (s === 'clean' ? ' clean me' : (s === 'occupied' ? ' in' : ' free')), s === 'clean' && role === 'housekeeping', true);
       });
     }
-    $('scene').setAttribute('viewBox', U.layout.viewUp); $('scene').innerHTML = h;
+    $('scene').setAttribute('viewBox', U.paradise.viewUp); $('scene').innerHTML = h;
   }
 
   /* ---- panel (what you can do, by level) ---- */
@@ -170,7 +178,7 @@
     if (!el) { return; }
     if (el.hasAttribute('data-floor')) { floor = el.getAttribute('data-floor'); render(); }
     else if (el.hasAttribute('data-room')) { setRoom(el.getAttribute('data-room'), el.getAttribute('data-to')); }
-    else if (el.hasAttribute('data-role')) { role = el.getAttribute('data-role'); try { localStorage.setItem('ud-role', role); } catch (x) { } render(); }
+    else if (el.hasAttribute('data-role')) { role = el.getAttribute('data-role'); try { localStorage.setItem('paradise-role', role); } catch (x) { } render(); }
     else if (el.hasAttribute('data-fuel')) { setFuel(el.getAttribute('data-fuel')); }
     else if (el.hasAttribute('data-mode')) { form.n = +($('fn') && $('fn').value) || form.n; form.mode = el.getAttribute('data-mode'); panel(); }
     else if (el.hasAttribute('data-start')) { startFill(+el.getAttribute('data-start')); }

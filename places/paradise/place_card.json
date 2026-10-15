@@ -1,0 +1,159 @@
+{
+  "card_version": 0,
+  "id": "paradise",
+  "name": "Paradise",
+  "kind": "activity",
+  "blurb": "SSI and PADI dive shop and hostel on the bay, next to Josie's.",
+  "agencies": [
+    "SSI",
+    "PADI"
+  ],
+  "hours": {
+    "mon": "7:00-17:00",
+    "tue": "7:00-17:00",
+    "wed": "7:00-17:00",
+    "thu": "7:00-17:00",
+    "fri": "7:00-17:00",
+    "sat": "7:00-17:00",
+    "sun": "7:00-12:00"
+  },
+  "closed_until": null,
+  "closed_note": null,
+  "open_now": null,
+  "palette": {
+    "light": {
+      "ink": "#1F3A4D",
+      "paper": "#F7FAFC",
+      "accent": "#3E86B8",
+      "accent-ink": "#FFFFFF",
+      "soft": "#BFE0F2"
+    },
+    "dark": {
+      "ink": "#EAF2F8",
+      "paper": "#0E1E2A",
+      "accent": "#7FB8DE",
+      "accent-ink": "#0B2232",
+      "soft": "#2C5A7A"
+    },
+    "source": "art/palettes.json#paradise"
+  },
+  "links": [
+    {
+      "label": "Paradise",
+      "url": "",
+      "type": "site"
+    }
+  ],
+  "languages": [
+    "en",
+    "es"
+  ],
+  "cert_levels": {
+    "_": "shared ladder; SSI and PADI cards are both accepted for fun dives",
+    "none": "No card yet",
+    "ow": "Open Water",
+    "aow": "Advanced Open Water",
+    "rescue": "Rescue Diver",
+    "pro": "Divemaster or above"
+  },
+  "courses": [
+    {
+      "id": "discover",
+      "name": "Try scuba",
+      "kind": "experience",
+      "agencies": [
+        "SSI",
+        "PADI"
+      ],
+      "needs": "none",
+      "blocks": [
+        "m",
+        "a"
+      ],
+      "blurb": "A first breath underwater in the confined water, then a shallow reef dive with an instructor beside you."
+    },
+    {
+      "id": "ow",
+      "name": "Open Water",
+      "kind": "course",
+      "agencies": [
+        "SSI",
+        "PADI"
+      ],
+      "needs": "none",
+      "days": 4,
+      "blocks": [
+        "m",
+        "a"
+      ],
+      "blurb": "Classroom, confined water, then four ocean dives. You leave with a card from the agency you pick."
+    },
+    {
+      "id": "aow",
+      "name": "Advanced Open Water",
+      "kind": "course",
+      "agencies": [
+        "SSI",
+        "PADI"
+      ],
+      "needs": "ow",
+      "days": 2,
+      "blocks": [
+        "m",
+        "a"
+      ],
+      "blurb": "Deep, navigation and three dives you choose."
+    },
+    {
+      "id": "rescue",
+      "name": "Rescue Diver",
+      "kind": "course",
+      "agencies": [
+        "SSI",
+        "PADI"
+      ],
+      "needs": "aow",
+      "days": 3,
+      "blocks": [
+        "m",
+        "a"
+      ],
+      "blurb": "The course people say makes them a better buddy."
+    },
+    {
+      "id": "fun",
+      "name": "Fun dives",
+      "kind": "trip",
+      "agencies": [
+        "any"
+      ],
+      "needs": "ow",
+      "blocks": [
+        "m",
+        "a"
+      ],
+      "blurb": "Two tanks on the reef from the boat at the big dive dock."
+    },
+    {
+      "id": "night",
+      "name": "Night dive",
+      "kind": "trip",
+      "agencies": [
+        "any"
+      ],
+      "needs": "ow",
+      "blocks": [
+        "e"
+      ],
+      "blurb": "Torches provided. The reef is a different place after dark."
+    }
+  ],
+  "stay": {
+    "rooms": [
+      "dorms with 2 bunks",
+      "single",
+      "two fulls",
+      "suites with 2 queens, bathroom and A/C"
+    ]
+  }
+}
