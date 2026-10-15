@@ -177,50 +177,109 @@
   /* a place pin for overview maps: white ring, the place's color, a dot */
   J.pin = function (cx, cy, col) { return J.shadow(cx + 3, cy + 18, 14, 4) + '<path d="M' + cx + ',' + (cy + 18) + ' L' + (cx - 9) + ',' + (cy + 4) + ' L' + (cx + 9) + ',' + (cy + 4) + 'Z" fill="#FFFFFF"/><circle cx="' + cx + '" cy="' + cy + '" r="16" fill="#FFFFFF"/><circle cx="' + cx + '" cy="' + cy + '" r="11" fill="' + col + '"/><circle cx="' + cx + '" cy="' + cy + '" r="4" fill="#FFFFFF"/>'; };
 
-  /* ---- the adventure yacht: one per region, big enough to walk around ----
-     Bow up, around (0,0), ~420 wide and ~1060 long including the swim platform. c = the region's colors; kind 'caribbean' | 'seasia'
-     changes the rig (a tall white mainsail, or a junk sail with battens and lanterns). Returns { base, parts }: parts are the
-     stations a guest can tap (rest, sail, dive, eat, stay, water, fish), each { m: markup, box: [x, y, w, h], tag: [x, y] }. */
+  /* ---- expedition vessels: 100 m explorer ships, one per region, big enough to walk around ----
+     Bow up, around (0,0), ~400 wide and ~1100 long. Two kinds, after real explorer yachts:
+       'cat'    an explorer catamaran (like The Beast): two plumb-bowed hulls in dazzle stripes, a wide bridge deck, a sportfisher aft;
+       'shadow' a yacht-support ship: plumb bow, superstructure forward, a long working deck aft with a crane, tenders, a sub.
+     The superstructure's aft end is cut away (Josie's way) to show the cabins and the dining room. c = the region's colors.
+     Returns { base, parts }: parts are the stations a guest can tap (rest, sail, dive, eat, stay, water, fish),
+     each { m: markup, box: [x, y, w, h], tag: [x, y] }. */
+  var DK = '#2F3A44';
+  function band(x, y, wd, ht) { return r(x, y, wd, ht, DK, ht / 2) + r(x + 8, y + 4, wd * .3, 4, '#FFFFFF', 2, ' opacity=".25"'); }
+  function mast(x, y, c) { return r(x - 5, y - 6, 10, 70, C.steel, 4) + r(x - 40, y + 14, 80, 7, C.steel, 3) + '<circle cx="' + (x - 34) + '" cy="' + (y + 34) + '" r="15" fill="' + C.postEdge + '"/><circle cx="' + (x - 34) + '" cy="' + (y + 30) + '" r="15" fill="#FFFFFF"/><circle cx="' + (x + 34) + '" cy="' + (y + 34) + '" r="15" fill="' + C.postEdge + '"/><circle cx="' + (x + 34) + '" cy="' + (y + 30) + '" r="15" fill="#FFFFFF"/>' + r(x + 6, y - 6, 20, 13, c.accent, 2) + J.bulb(x, y - 8, 4); }
+  function crane(x, y, ang) { return '<circle cx="' + x + '" cy="' + (y + 5) + '" r="22" fill="' + C.steel + '"/><circle cx="' + x + '" cy="' + y + '" r="22" fill="' + C.steelLt + '"/><g transform="rotate(' + ang + ' ' + x + ' ' + y + ')">' + r(x - 8, y - 8, 120, 16, '#F2B632', 7) + r(x + 100, y - 6, 70, 12, '#E9E3D3', 6) + r(x + 110, y - 4, 50, 3, '#F2B632', 1) + '<circle cx="' + (x + 170) + '" cy="' + y + '" r="6" fill="' + C.gear + '"/></g><circle cx="' + x + '" cy="' + y + '" r="9" fill="' + C.gear + '"/>'; }
+  function sub(x, y) { return J.shadow(x + 6, y + 8, 30, 44, .16) + r(x - 26, y - 44, 52, 88, '#F2B632', 26) + r(x - 26, y + 10, 52, 34, '#E3A21F', 22) + '<circle cx="' + x + '" cy="' + (y - 20) + '" r="20" fill="' + C.glassDk + '"/><circle cx="' + (x - 6) + '" cy="' + (y - 26) + '" r="6" fill="#FFFFFF" opacity=".7"/>' + r(x - 34, y + 20, 10, 18, C.gear, 4) + r(x + 24, y + 20, 10, 18, C.gear, 4); }
+  function jetski(x, y, col, rot) { return '<g transform="translate(' + x + ',' + y + ') rotate(' + (rot || 0) + ')">' + J.shadow(4, 4, 14, 30, .14) + '<path d="M0,-34 C12,-22 14,0 14,24 Q14,34 4,34 H-4 Q-14,34 -14,24 C-14,0 -12,-22 0,-34Z" fill="' + col + '"/>' + r(-8, -4, 16, 26, C.gear, 7) + r(-12, -14, 24, 5, C.gearLt, 2) + '</g>'; }
+  function hobie(x, y, col) { return J.shadow(x + 6, y + 6, 40, 60, .14) + r(x - 34, y - 60, 14, 120, '#FFFFFF', 7) + r(x + 20, y - 60, 14, 120, '#FFFFFF', 7) + r(x - 34, y - 60, 14, 120, col, 7, ' opacity=".35"') + r(x - 20, y - 20, 40, 60, C.gearLt, 3, ' opacity=".7"') + '<path d="M' + x + ',' + (y - 40) + ' Q' + (x + 30) + ',' + (y) + ' ' + (x + 10) + ',' + (y + 50) + ' Q' + (x + 6) + ',' + y + ' ' + x + ',' + (y - 40) + 'Z" fill="#FFFFFF"/><path d="M' + x + ',' + (y - 40) + ' Q' + (x + 30) + ',' + y + ' ' + (x + 10) + ',' + (y + 50) + '" stroke="' + col + '" stroke-width="3" fill="none"/><circle cx="' + x + '" cy="' + (y - 40) + '" r="5" fill="' + C.gear + '"/>'; }
+  function jacuzzi(cx, cy, rad) { return '<circle cx="' + cx + '" cy="' + (cy + 5) + '" r="' + rad + '" fill="' + C.postEdge + '"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rad + '" fill="#FFFFFF"/><circle cx="' + cx + '" cy="' + cy + '" r="' + (rad - 9) + '" fill="' + C.water + '"/><circle cx="' + (cx - 10) + '" cy="' + (cy - 6) + '" r="4" fill="#FFFFFF" opacity=".8"/><circle cx="' + (cx + 8) + '" cy="' + (cy + 8) + '" r="3" fill="#FFFFFF" opacity=".8"/><circle cx="' + (cx + 12) + '" cy="' + (cy - 12) + '" r="2.5" fill="#FFFFFF" opacity=".8"/>'; }
+  function tankRow(x, y, n, c, vertical) { var h = '', i; for (i = 0; i < n; i++) { var tx = vertical ? x : x + i * 26, ty = vertical ? y + i * 26 : y; h += '<circle cx="' + tx + '" cy="' + ty + '" r="11" fill="' + (i % 3 === 2 ? (c.tank2 || '#F2F2EE') : (c.tank || c.accent)) + '"/><circle cx="' + tx + '" cy="' + ty + '" r="4" fill="' + C.gear + '"/>'; } return h; }
+  /* the aft end of the superstructure, cut away: a cabin on one side, the dining room on the other */
+  function cutaway(p, x, y, wd, ht, c) {
+    var mid = x + wd / 2;
+    return { room: J.room(x, y, wd, ht, 'url(#' + p + '-white)', { wall: '#FFFFFF', wallEdge: C.postEdge }) + r(mid - 4, y, 8, ht, '#FFFFFF'),
+      stay: J.bed(x + 14, y + 16, wd / 2 - 70, ht - 44, c.accent) + J.bed(x + wd / 2 - 52, y + 16, 40, ht - 44, c.soft) + J.lamp(x + wd / 2 - 70, y, 10), eat: J.table(mid + 20, y + 22, wd / 2 - 40, ht - 66, { noPot: true }) + J.chair(mid + 40, y + ht - 34, c.soft, '#FFFFFF') + J.chair(mid + wd / 4, y + ht - 34, c.accent, c.soft) + J.chair(x + wd - 40, y + ht - 34, c.soft, '#FFFFFF') + J.pot(mid + wd / 4 + 6, y + 40) + J.lamp(mid + wd / 4, y, 10) };
+  }
   J.yacht = function (p, c, kind) {
-    var L = 500, W = 210, d = hullPath(W, L), base = '', P = {}, i, h;
-    base += J.shadow(26, 30, W * 1.18, L * 1.02, .18);
-    base += r(-150, L - 30, 300, 92, C.woodFront, 16) + r(-150, L - 36, 300, 86, 'url(#' + p + '-plank)', 16);   /* swim platform */
-    base += '<path d="' + d + '" fill="#FFFFFF"/><path d="' + d + '" fill="' + c.accent + '" transform="scale(.95,.975)"/><path d="' + d + '" fill="#FFFFFF" transform="scale(.91,.95)"/><path d="' + d + '" fill="url(#' + p + '-plankV)" transform="scale(.87,.93)"/>';
-    for (i = -380; i < 470; i += 90) { base += J.woodPost(i < -200 ? (i + 380) * .55 + 50 : 172, i) + J.woodPost(i < -200 ? -(i + 380) * .55 - 50 : -172, i); }
-    /* wheelhouse: white top over its front face, a band of glass */
-    base += J.block(-120, -150, 240, 90, '#FFFFFF', C.postEdge, 26, 18) + r(-104, -134, 208, 30, C.glassDk, 10) + '<path d="M-90,-110 l14,-18 M-40,-110 l14,-18" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>' + r(-120, -150, 240, 10, c.accent, 6) + J.bulb(-96, -70, 4) + J.bulb(96, -70, 4);
-    /* bow: the net and the loungers */
-    h = r(-80, -430, 160, 130, c.soft, 14, ' opacity=".85"'); for (i = -414; i < -300; i += 18) { h += r(-80, i, 160, 2, '#FFFFFF', 0, ' opacity=".8"'); } for (i = -64; i < 80; i += 18) { h += r(i, -430, 2, 130, '#FFFFFF', 0, ' opacity=".8"'); }
-    h += J.lounger(-130, -300, c.accent) + J.lounger(78, -300, c.soft) + J.plant(0, -296, .5);
-    P.rest = { m: h, box: [-170, -450, 340, 190], tag: [0, -246] };
-    /* mast and sail */
-    if (kind === 'seasia') {
-      h = '<path d="M0,-226 L120,-250 L140,-150 L0,-176Z" fill="' + c.accent + '"/>'; for (i = 0; i < 4; i++) { h += '<path d="M0,' + (-220 + i * 13) + ' L' + (124 + i * 4) + ',' + (-238 + i * 22) + '" stroke="' + (c.deep || C.woodDark) + '" stroke-width="3"/>'; }
-      h += '<circle cy="-200" r="14" fill="' + C.woodDark + '"/>' + J.lantern(-60, -184, .7) + J.lantern(-110, -196, .6);
-    } else {
-      h = '<path d="M0,-210 Q60,-120 26,-20 Q10,-110 0,-210Z" fill="#FFFFFF"/><path d="M0,-210 Q60,-120 26,-20" stroke="' + c.accent + '" stroke-width="4" fill="none"/>' + r(-4, -210, 8, 190, C.woodDark, 4) + '<circle cy="-212" r="14" fill="' + C.gear + '"/>' + '<path d="M-14,-224 L-60,-380 M14,-224 L60,-380" stroke="' + C.steel + '" stroke-width="2.4"/>';
+    var base = '', P = {}, i, h, cut, d;
+    if (kind === 'cat') {
+      /* two hulls in dazzle stripes, the net and beanbags between the bows */
+      base += J.shadow(24, 30, 250, 540, .18);
+      [-130, 130].forEach(function (x, k) {
+        d = hullPath(62, 520);
+        base += '<clipPath id="' + p + '-dz' + k + '"><path d="' + d + '" transform="translate(' + x + ',0)"/></clipPath><path d="' + d + '" transform="translate(' + x + ',0)" fill="#E6E8EA"/><g clip-path="url(#' + p + '-dz' + k + ')">';
+        for (i = -9; i < 9; i++) { base += '<path d="M' + (x - 80) + ',' + (i * 64) + ' l160,-70 v34 l-160,70z" fill="' + (i % 3 === 0 ? c.accent : i % 3 === 1 ? '#9AA3AA' : '#FFFFFF') + '"/>'; }
+        base += '</g><path d="' + d + '" transform="translate(' + x + ',4) scale(.66,.95)" fill="' + C.postEdge + '"/><path d="' + d + '" transform="translate(' + x + ',0) scale(.66,.95)" fill="url(#' + p + '-plankV)"/>';
+      });
+      base += r(-150, 140, 300, 300, C.postEdge, 14) + r(-150, 134, 300, 300, 'url(#' + p + '-plank)', 14);   /* aft deck between the hulls */
+      base += J.block(-180, -270, 360, 290, '#FFFFFF', C.postEdge, 26, 40) + band(-166, -256, 332, 38) + J.block(-126, -236, 252, 150, '#F4F6F8', C.postEdge, 16, 30) + band(-114, -226, 228, 26) + mast(0, -150, c);
+      base += r(-180, -6, 360, 10, c.accent, 5);
+      h = r(-70, -470, 140, 190, c.soft, 14, ' opacity=".85"'); for (i = -454; i < -284; i += 18) { h += r(-70, i, 140, 2, '#FFFFFF', 0, ' opacity=".8"'); } for (i = -54; i < 70; i += 18) { h += r(i, -470, 2, 190, '#FFFFFF', 0, ' opacity=".8"'); }
+      h += '<circle cx="-30" cy="-380" r="22" fill="' + c.accent + '"/><circle cx="26" cy="-340" r="22" fill="' + c.pop + '"/><circle cx="-24" cy="-318" r="18" fill="#FFFFFF"/>' + jacuzzi(-130, -330, 40);
+      P.rest = { m: h, box: [-180, -480, 340, 210], tag: [0, -446] };
+      cut = cutaway(p, -170, 24, 340, 100, c); base += cut.room;
+      P.stay = { m: cut.stay, box: [-176, 18, 176, 112], tag: [-88, 150] };
+      P.eat = { m: cut.eat, box: [0, 18, 176, 112], tag: [88, 150] };
+      /* aft deck: the sportfisher, dive gear, the hobie cat */
+      h = J.at(0, 300, 0, 1, J.hull(p, 44, 120, { accent: C.gear }) + J.block(-30, -50, 60, 50, '#FFFFFF', C.postEdge, 10, 10) + band(-24, -44, 48, 16) + '<path d="M-26,40 L-60,-40 M26,40 L60,-40" stroke="' + C.gear + '" stroke-width="3" stroke-linecap="round"/>' + '<circle cy="70" r="12" fill="' + C.gearLt + '"/>');
+      P.fish = { m: h, box: [-60, 170, 120, 260], tag: [0, 456] };
+      h = tankRow(-130, 180, 9, c, true) + J.bcd(-90, 196, C.gear) + J.fins(-90, 330, C.gear, c.accent) + J.mask(-90, 360) + r(-160, 160, 4, 40, C.steel, 2) + J.diveFlag(-156, 160, 0);
+      P.dive = { m: h, box: [-176, 150, 120, 270], tag: [-116, 456] };
+      P.sail = { m: hobie(118, 290, c.accent), box: [60, 150, 120, 270], tag: [118, 456] };
+      h = jetski(-130, 560, c.accent, 0) + jetski(130, 560, c.pop, 0) + J.kayak(-60, 560, 120, c.soft, 0) + J.kayak(60, 560, 120, c.accent, 0);
+      P.water = { m: h, box: [-190, 500, 380, 120], tag: [0, 640] };
+      return { base: base, parts: P };
     }
-    P.sail = { m: h, box: [-150, -270, 300, 130], tag: [kind === 'seasia' ? 90 : -90, -168] };
-    /* dive deck: tanks down both rails, the bench, BCDs, the flag */
-    h = J.block(-26, -30, 52, 190, C.wood, C.woodFront, 10, 8);
-    for (i = 0; i < 6; i++) { [-150, -116, 116, 150].forEach(function (x, k) { h += '<circle cx="' + x + '" cy="' + (-20 + i * 32) + '" r="13" fill="' + ((i + k) % 3 ? (c.tank || c.accent) : (c.tank2 || '#F2F2EE')) + '"/><circle cx="' + x + '" cy="' + (-20 + i * 32) + '" r="4.5" fill="' + C.gear + '"/>'; }); }
-    h += J.bcd(-62, 0, C.gear) + J.bcd(62, 60, C.gear) + J.fins(-62, 150, C.gear, c.accent) + J.mask(62, 140) + r(-6, -60, 4, 40, C.steel, 2) + J.diveFlag(-2, -60, 0);
-    P.dive = { m: h, box: [-175, -50, 350, 225], tag: [0, 170] };
-    /* galley table under an umbrella */
-    h = J.table(-150, 200, 190, 56, { noPot: true }) + J.chair(-130, 280, c.soft, '#FFFFFF') + J.chair(-60, 280, c.accent, c.soft) + J.chair(4, 280, c.soft, '#FFFFFF') + J.pot(-55, 222) + J.umbrella(110, 236, 52, c.accent, '#FFFFFF');
-    P.eat = { m: h, box: [-175, 190, 350, 130], tag: [-40, 196] };
-    /* cabins, cut away: two berths and a porthole */
-    h = r(-176, 334, 352, 104, 'url(#' + p + '-white)', 10) + r(-176, 334, 352, 8, c.accent, 4) + J.bed(-160, 352, 110, 64, c.accent) + J.bed(-34, 352, 110, 64, c.soft) + '<circle cx="128" cy="384" r="20" fill="' + C.glassDk + '"/><circle cx="128" cy="384" r="20" fill="none" stroke="' + C.steel + '" stroke-width="5"/>';
-    P.stay = { m: h, box: [-180, 326, 360, 120], tag: [0, 440] };
-    /* swim platform: kayaks, a paddleboard, snorkel masks */
-    h = J.kayak(-60, 520, 150, c.accent, 90) + J.kayak(60, 548, 130, c.pop || C.bulb, 90) + J.mask(110, 506, C.gear) + J.mask(-128, 540, c.accent);
-    P.water = { m: h, box: [-150, 470, 300, 110], tag: [0, 612] };
-    /* fishing: rods in the holders at the stern corners, a cooler */
-    h = '<path d="M-150,456 L-230,330 M-136,462 L-200,320" stroke="' + C.gear + '" stroke-width="3.5" stroke-linecap="round"/><path d="M-230,330 q-30,60 -4,120 M-200,320 q-24,70 -2,130" stroke="#FFFFFF" stroke-width="1.6" fill="none" opacity=".8"/>' + J.block(-150, 444, 56, 26, '#FFFFFF', c.soft, 12, 6) + r(-150, 444, 56, 9, c.accent, 4);
-    P.fish = { m: h, box: [-250, 300, 120, 190], tag: [-210, 300] };
+    /* 'shadow': a yacht-support ship */
+    d = 'M-56,-530 Q0,-546 56,-530 C150,-430 170,-300 170,-190 L170,500 Q170,522 148,522 H-148 Q-170,522 -170,500 L-170,-190 C-170,-300 -150,-430 -56,-530Z';
+    base += J.shadow(24, 30, 210, 540, .18) + r(-140, 490, 280, 90, C.woodFront, 14) + r(-140, 484, 280, 86, 'url(#' + p + '-plank)', 14);
+    base += '<path d="' + d + '" fill="#FFFFFF"/><path d="' + d + '" fill="' + c.accent + '" transform="scale(.955,.985)"/><path d="' + d + '" fill="#FFFFFF" transform="scale(.93,.97)"/><path d="' + d + '" fill="url(#' + p + '-plankV)" transform="scale(.89,.95)"/>';
+    base += r(-150, 60, 300, 400, '#DCE1E5', 10); for (i = 74; i < 460; i += 22) { base += r(-150, i, 300, 2, '#C9D0D6'); }   /* the working deck */
+    base += J.block(-152, -330, 304, 360, '#FFFFFF', C.postEdge, 26, 34) + band(-140, -316, 280, 36) + J.block(-112, -298, 224, 190, '#F4F6F8', C.postEdge, 16, 26) + band(-100, -288, 200, 24) + mast(0, -200, c) + r(-152, 22, 304, 10, c.accent, 5);
+    base += '<circle cx="-30" cy="-470" r="12" fill="' + C.gear + '"/><circle cx="30" cy="-470" r="12" fill="' + C.gear + '"/>' + crane(-118, 96, 52);
+    h = jacuzzi(0, -410, 40) + J.lounger(-130, -420, c.accent) + J.lounger(78, -420, c.soft);
+    P.rest = { m: h, box: [-150, -470, 300, 140], tag: [0, -346] };
+    cut = cutaway(p, -150, -100, 300, 110, c); base += cut.room;
+    P.stay = { m: cut.stay, box: [-156, -106, 156, 124], tag: [-78, -116] };
+    P.eat = { m: cut.eat, box: [0, -106, 156, 124], tag: [78, -116] };
+    h = J.at(-60, 280, 0, .42, J.boat(p, 'dive', c, { rows: 4 })) + tankRow(-136, 150, 9, c, true) + r(-150, 120, 4, 40, C.steel, 2) + J.diveFlag(-146, 120, 0);
+    P.dive = { m: h, box: [-160, 130, 170, 230], tag: [-70, 390] };
+    h = hobie(90, 170, c.accent) + sub(90, 330);
+    P.sail = { m: h, box: [30, 100, 130, 290], tag: [90, 410] };
+    h = '<path d="M-20,446 L-60,380 M20,446 L60,380" stroke="' + C.gear + '" stroke-width="3.5" stroke-linecap="round"/><circle cx="0" cy="430" r="16" fill="' + C.gearLt + '"/>' + r(-12, 440, 24, 14, C.gear, 4) + J.block(40, 420, 56, 26, '#FFFFFF', c.soft, 10, 6) + r(40, 420, 56, 9, c.accent, 4);
+    P.fish = { m: h, box: [-70, 370, 180, 100], tag: [0, 476] };
+    h = jetski(-80, 530, c.accent, 90) + jetski(10, 530, c.pop, 90) + J.kayak(96, 530, 110, c.soft, 90);
+    P.water = { m: h, box: [-145, 490, 290, 90], tag: [0, 604] };
     return { base: base, parts: P };
   };
   J.hullPath = hullPath;
+
+
+  /* the medevac helicopter, in the old field-hospital manner (from above): a glass bubble, an open lattice tail boom,
+     skids with a stretcher pod on each side marked with the first-aid cross. Rotor in class "spin". */
+  J.medic = function (c) {
+    var olive = c.olive || '#7C8C5E', oliveDk = '#5F6E45', h = J.shadow(16, 24, 120, 70, .16), i;
+    /* skids and the two stretcher pods */
+    h += r(-58, -60, 8, 130, C.gear, 4) + r(50, -60, 8, 130, C.gear, 4) + r(-58, -40, 116, 6, C.gearLt, 3) + r(-58, 36, 116, 6, C.gearLt, 3);
+    [-92, 92].forEach(function (x) { h += r(x - 22, -66, 44, 138, C.postEdge, 22) + r(x - 22, -70, 44, 138, '#F4F1E8', 22) + r(x - 14, -30, 28, 28, '#3E9B5A', 6) + r(x - 3, -26, 6, 20, '#FFFFFF', 2) + r(x - 10, -19, 20, 6, '#FFFFFF', 2) + r(x - 16, 40, 32, 4, C.postEdge, 2); });
+    /* the lattice tail boom: two rails and a zigzag, the tail rotor at the end */
+    h += r(-9, 30, 4, 170, oliveDk, 2) + r(5, 30, 4, 170, oliveDk, 2); var z = 'M-7,34'; for (i = 0; i < 8; i++) { z += ' L' + (i % 2 ? -7 : 7) + ',' + (54 + i * 20); } h += '<path d="' + z + '" stroke="' + oliveDk + '" stroke-width="2.4" fill="none"/>';
+    h += r(-26, 194, 52, 8, olive, 4) + '<g class="spin" style="transform-origin:22px 198px">' + r(18, 172, 8, 52, C.gear, 4) + '</g>';
+    /* engine deck and the bubble */
+    h += r(-26, -6, 52, 50, olive, 14) + r(-18, 4, 36, 30, C.gear, 8) + '<circle cx="-8" cy="12" r="5" fill="' + C.gearHi + '"/><circle cx="8" cy="22" r="5" fill="' + C.gearHi + '"/>';
+    h += '<circle cx="0" cy="-34" r="44" fill="' + olive + '"/><circle cx="0" cy="-38" r="40" fill="' + C.glassDk + '"/><circle cx="0" cy="-38" r="40" fill="' + C.glass + '" opacity=".35"/><ellipse cx="-14" cy="-54" rx="10" ry="16" fill="#FFFFFF" opacity=".7" transform="rotate(-30 -14 -54)"/>' + r(-22, -30, 18, 16, oliveDk, 6) + r(4, -30, 18, 16, oliveDk, 6);
+    return h + '<g class="spin">' + r(-150, -5, 300, 10, C.gear, 5, ' opacity=".75"') + r(-5, -150, 10, 300, C.gear, 5, ' opacity=".75"') + '</g><circle r="11" fill="' + C.gearLt + '"/><circle r="4" fill="' + C.steelLt + '"/>';
+  };
+  /* a medevac pad: the helipad ring of bulbs around a green first-aid cross */
+  J.medpad = function (cx, cy, rad) { var h = '<circle cx="' + cx + '" cy="' + (cy + 8) + '" r="' + rad + '" fill="' + C.steel + '"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rad + '" fill="#E9EEF1"/>', i, a; h += r(cx - 16, cy - 56, 32, 112, '#3E9B5A', 6, ' opacity=".35"') + r(cx - 56, cy - 16, 112, 32, '#3E9B5A', 6, ' opacity=".35"'); for (i = 0; i < 16; i++) { a = i / 16 * 6.283; h += J.bulb(cx + Math.cos(a) * (rad - 10), cy + Math.sin(a) * (rad - 10), 3.5); } return h; };
+
+  /* ---- more home and garden ---- */
+  J.firepit = function (cx, cy) { var h = J.shadow(cx + 4, cy + 10, 46, 12) + '<circle cx="' + cx + '" cy="' + (cy + 5) + '" r="36" fill="' + C.rockDk + '"/><circle cx="' + cx + '" cy="' + cy + '" r="36" fill="' + C.rockLt + '"/><circle cx="' + cx + '" cy="' + cy + '" r="24" fill="' + C.plum + '"/>' + J.bulb(cx, cy, 14, '#F2A641') + '<path d="M' + (cx - 8) + ',' + (cy + 6) + ' q0,-18 8,-24 q8,10 8,24z" fill="' + C.flag + '"/>', k; for (k = 0; k < 4; k++) { var a = k * 1.57 + .5, x = cx + Math.cos(a) * 72, y = cy + Math.sin(a) * 58; h += J.shadow(x + 3, y + 10, 26, 6) + r(x - 24, y - 8, 48, 18, C.woodFront, 8) + r(x - 24, y - 12, 48, 18, C.wood, 8) + '<circle cx="' + (x - 18) + '" cy="' + (y - 3) + '" r="5" fill="' + C.plank + '"/>'; } return h; };
+  J.hammock = function (x1, y1, x2, y2, col) { var mx = (x1 + x2) / 2, my = (y1 + y2) / 2; return J.shadow(mx + 6, my + 14, Math.abs(x2 - x1) * .4, 10) + '<path d="M' + x1 + ',' + y1 + ' Q' + mx + ',' + (my + 40) + ' ' + x2 + ',' + y2 + ' Q' + mx + ',' + (my + 10) + ' ' + x1 + ',' + y1 + 'Z" fill="' + col + '"/><path d="M' + (x1 + 20) + ',' + (y1 + 8) + ' Q' + mx + ',' + (my + 30) + ' ' + (x2 - 20) + ',' + (y2 + 8) + '" stroke="#FFFFFF" stroke-width="3" fill="none" opacity=".5"/>'; };
+  J.flowerbed = function (x, y, wd, ht, seed) { var h = J.block(x, y, wd, ht, C.soil, C.woodDark, 10, 8), R = rnd(seed || 5), i, cols = ['#F5B5C8', C.bulb, '#FFFFFF', C.flag, '#CDBDE6']; for (i = 0; i < wd * ht / 260; i++) { var fx = x + 8 + R() * (wd - 16), fy = y + 8 + R() * (ht - 16); h += '<circle cx="' + f(fx) + '" cy="' + f(fy + 3) + '" r="6" fill="' + C.leafDk + '"/><circle cx="' + f(fx) + '" cy="' + f(fy) + '" r="5" fill="' + cols[i % cols.length] + '"/>'; } return h; };
+  J.bench = function (x, y, wd) { return J.shadow(x + wd / 2, y + 30, wd * .5, 5) + r(x + 6, y + 14, 6, 16, C.woodDark, 2) + r(x + wd - 12, y + 14, 6, 16, C.woodDark, 2) + J.block(x, y, wd, 14, C.wood, C.woodFront, 6, 4) + r(x, y - 14, wd, 8, C.wood, 4); };
+  J.mailbox = function (cx, by, col) { return J.shadow(cx + 3, by + 2, 12, 3) + r(cx - 3, by - 36, 6, 36, C.woodDark, 2) + r(cx - 14, by - 54, 28, 20, col, 9) + r(cx + 12, by - 60, 4, 14, C.flag, 1) + r(cx + 12, by - 60, 10, 6, C.flag, 1); };
+  J.flagpole = function (cx, by, col) { return J.shadow(cx + 4, by + 2, 14, 3) + r(cx - 3, by - 130, 6, 130, '#FFFFFF', 3) + r(cx - 8, by - 6, 16, 8, C.postEdge, 3) + '<circle cx="' + cx + '" cy="' + (by - 132) + '" r="5" fill="' + C.bulb + '"/><path d="M' + (cx + 3) + ',' + (by - 126) + ' h56 l-12,14 12,14 h-56z" fill="' + col + '"/>'; };
+  J.lampPost = function (cx, by) { return J.shadow(cx + 3, by + 2, 10, 3) + r(cx - 3, by - 54, 6, 54, C.plum, 3) + r(cx - 9, by - 66, 18, 14, C.plum, 4) + J.bulb(cx, by - 58, 6); };
 
   /* ---- landmarks and props (front-on, like Josie's small things) ---- */
   /* the globe on a wood stand: sea, two leaf continents, a brass meridian, a white glint */
