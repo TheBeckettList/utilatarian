@@ -1,5 +1,5 @@
 /* Paradise Divers (SSI + PADI dive shop and hostel, Utila), drawn from the owner's sketches and the satellite view, in Josie's universe
-   (art/josie.js). Sea at the top, like the sketch: an L-shaped dock runs out from the beach to the Confined house at its end, the dive
+   (art/josie.js + art/world.js). Sea at the top, like the sketch: an L-shaped dock runs out from the beach to the Confined house at its end, the dive
    boat tied alongside. Below the water, a beachy sand area (the lower level, between the office and the sea), then the two parallel
    two-story buildings running inland with the alley between them. Josie's to the west, the restaurant building to the east.
    Blue, white wood, black dive gear. No text on the map: statuses are bubbles the page adds.
@@ -18,23 +18,9 @@
   var L = { x: 230, w: 410 }, R = { x: 770, w: 400 }, TOP = 1340, BOT = 2440, ALLEY = { x: 650, w: 110 };
 
   function strip(x, y, wd) { return r(x, y, wd, 26, '#FFFFFF') + r(x, y, wd, 7, PC.wallTop) + r(x, y + 12, wd, 12, PC.wainscot) + r(x, y + 10, wd, 3, '#FFFFFF'); }
-  function dash(x, y, len) { return r(x, y, len, 5, '#FFF1C9', 2.5, ' opacity=".7"'); }
-  function pier(p, x, y, wd, ht, vertical) {
-    var h = vertical ? r(x + 6, y, wd, ht, '#9FB4C2', 6) + r(x, y, wd, ht, 'url(#' + p + '-whiteV)', 6) : r(x, y + 6, wd, ht, '#9FB4C2', 6) + r(x, y, wd, ht, 'url(#' + p + '-white)', 6), i;
-    if (vertical) { for (i = y + 30; i < y + ht - 10; i += 120) { h += J.woodPost(x - 2, i) + J.woodPost(x + wd + 2, i); } }
-    else { for (i = x + 30; i < x + wd - 10; i += 120) { h += J.woodPost(i, y - 2) + J.woodPost(i, y + ht + 2); } }
-    return h;
-  }
-  /* the dive boat from above: white hull, blue stripe, white-wood deck, tank rows, fuel at the bow, black engines */
-  function boat(p, cx, cy, s, rows) {
-    var hull = 'M0,-150 C46,-112 58,-40 58,56 L58,128 Q58,150 36,150 H-36 Q-58,150 -58,128 L-58,56 C-58,-40 -46,-112 0,-150Z', h, i;
-    rows = rows === undefined ? 6 : rows;
-    h = '<g transform="translate(' + cx + ',' + cy + ') scale(' + s + ')">' + J.shadow(10, 14, 72, 150, .16) + '<path d="' + hull + '" fill="#FFFFFF"/><path d="' + hull + '" fill="' + PC.accent + '" transform="scale(.93,.96)"/><path d="' + hull + '" fill="url(#' + p + '-white)" transform="scale(.84,.9)"/>';
-    for (i = 0; i < rows; i++) { h += '<circle cx="-34" cy="' + (-46 + i * 26) + '" r="10" fill="' + (i % 2 ? PC.tank2 : PC.tank) + '"/><circle cx="-34" cy="' + (-46 + i * 26) + '" r="3.5" fill="' + C.gear + '"/><circle cx="34" cy="' + (-46 + i * 26) + '" r="10" fill="' + (i % 2 ? PC.tank : PC.tank2) + '"/><circle cx="34" cy="' + (-46 + i * 26) + '" r="3.5" fill="' + C.gear + '"/>'; }
-    h += r(-14, -40, 28, 150, PC.soft, 8) + r(-24, -100, 48, 34, '#FFFFFF', 10) + r(-18, -94, 36, 18, C.glassDk, 6) + r(-14, -128, 28, 20, '#D9614A', 5) + r(-10, -124, 20, 5, '#FFFFFF', 2, ' opacity=".6"') +
-      r(-30, 132, 22, 24, C.gear, 6) + r(8, 132, 22, 24, C.gear, 6) + '<g transform="translate(16,96) rotate(-6)">' + r(0, 0, 34, 24, '#D9614A', 3) + '<path d="M0,0 L34,24 L34,14 L14,0Z" fill="#FFFFFF"/></g></g>';
-    return h;
-  }
+  var dash = J.dash, pier = J.pier;
+  /* the dive boat from above (the shared J.boat 'dive' in Paradise's colors): white hull, blue stripe, white-wood deck, tank rows */
+  function boat(p, cx, cy, s, rows) { return J.at(cx, cy, 0, s, J.boat(p, 'dive', PC, { rows: rows })); }
   function sea(p) {
     var h = r(0, 0, 1440, 1060, C.water) + r(0, 0, 1440, 560, C.deep, 0, ' opacity=".55"') + r(0, 560, 1440, 220, C.deep, 0, ' opacity=".25"');
     h += dash(120, 120, 90) + dash(980, 90, 110) + dash(1220, 380, 80) + dash(80, 520, 100) + dash(1100, 760, 90) + dash(300, 860, 70);

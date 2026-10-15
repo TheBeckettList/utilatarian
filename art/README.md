@@ -27,12 +27,34 @@ Rule of thumb: **if it is the ground, the water, a plant or a rock, it is shared
 9. **Quiet motion.** Taps do a small cute thing (a crab scuttles, a tree rustles) and stop. Everything respects `prefers-reduced-motion`.
 10. **Never color alone.** Open/closed, low stock and alerts always carry an icon or a word.
 
+## The shared grammar (draw new things out of these, so they match without trying)
+
+| Every... | is drawn as | kit |
+|---|---|---|
+| object | a TOP shape over its darker FRONT face, one plum shadow down-right | `J.block`, `J.shadow` |
+| room | floor pattern inside white wall slabs; the back wall as an elevation (color band, cream wall, wainscot, sill, windows) | `J.room`, `J.backWall` |
+| deck or pier | white wood (or plank) with wood posts down the sides | `J.pier`, `J.defs` patterns |
+| vessel | white rim, the owner's accent stripe, a wood deck; engines and gear in near-black `gear` | `J.hull`, `J.boat` |
+| light | a warm bulb with a soft halo (lamps, string lights, the helipad ring, the lighthouse, lanterns) | `J.bulb` |
+| water | `water` with `deep` bands and cream foam dashes; shores are foam, wet sand, sand | `J.sea`, `J.land`, `J.dash` |
+| small thing (plants, gear, machines, the globe) | front-on, standing on its shadow | `J.plant`, `J.tank`, `J.globe` |
+| place on an overview | its own map's landmarks, a tenth of the detail, its own colors | `J.mini.*` |
+
+A place passes its colors to all of it in one object (`accent, deep, soft, pale, tank, tank2, wallTop, shutter, wainscot, ...`);
+see `PC` in `places/paradise/map.js` and `TC` in `Tripwrights/rig.js`. `kit.js` and `places.js` are the earlier, flatter style:
+`icons.js` still uses them; new drawing uses `josie.js` + `world.js` only.
+
 ## Pieces
 
 - `palettes.json`: **the one source of truth** for every color. Edit here.
 - `tools/build-art.mjs` (repo root): `node tools/build-art.mjs` writes `tokens.css` and `palettes.js` from it.
 - `tokens.css`: world tokens, a `[data-place="…"]` block per place (light + dark), then `components.css` (cards, buttons, pills, chips, sign, sheet). Put `data-place="paradise"` on `<html>` or any container.
 - `kit.js`: ES5 SVG props: `UART.props.pot / palm / umbrella / table / counter / rock / reef / crab / turtle / boat / dock / buoy / tankRack / wetsuit / fins / mask / compressor / rinse / board / sea …`, placed with `UART.at(x, y, rot, scale, markup)`. Ported from Josie's: blob, reef, palm, crab.
+- `world.js`: **everything outside a building, in the same hand** (needs `josie.js`): sea, shore bands, cliffs, reefs, piers, life rings,
+  the dive flag, pennants and empty plots, **one hull for every boat** (`J.boat(p, 'dive' | 'catamaran' | 'panga' | 'longtail', c)`),
+  the bubble helicopter, float plane, helipad, the globe on its stand, container cabins, crates, lanterns, string lights, lighthouse,
+  island houses, and `J.mini.<place>`: each real place's simplified self for island overviews (`josies`, `paradise`).
+  Paradise's map and Tripwrights' rig and island maps are both drawn from it, so a boat, a pier or a tank looks the same everywhere.
 - `josie.js`: **the universe kit.** Josie's drawing idioms lifted from her design board (oblique room view: tops plus front faces, wainscoted back walls, plank and brick floors, plum shadows, front-on plants, chairs, lamps, gear). Everything new is drawn with it so Josie's, Paradise and Tripwrights are one game.
 - `icons.js` + `icons.html`: icon tiles in Josie's manner (dive gear, tanks, boat fuel gauge, beds, keys, bell, ...), with status badges (`ok` check, `low` !, `alert` !!, `busy` ...). `UART.icon('tankFull', { p: palette, status: 'ok' })`.
 - `places.js`: *simplified* drawings of real places for island overviews (`placeJosies`, `placeDives`): same layout and landmarks as the place's own map, fewer small things; plus Tripwrights' fantasy props (`dome`, `lantern`, `jelly`, `whaleShadow`, `bridge`, `lights`).
