@@ -7,6 +7,8 @@
   var ROLES = [
     { id: 'guest', name: 'Guest', who: 'Alex (guest)', rank: 0 },
     { id: 'filler', name: 'Tank filler', who: 'Beto (tank filler)', rank: 1 },
+    { id: 'desk', name: 'Front desk', who: 'Mara (front desk)', rank: 1 },
+    { id: 'housekeeping', name: 'Housekeeping', who: 'Lupe (housekeeping)', rank: 1 },
     { id: 'dm', name: 'Divemaster', who: 'Dani (DM)', rank: 2 },
     { id: 'instructor', name: 'Instructor', who: 'Rey (instructor)', rank: 3 },
     { id: 'owner', name: 'Owner', who: 'Owner', rank: 4 }
@@ -15,11 +17,14 @@
   try { role = localStorage.getItem('ud-role') || 'dm'; } catch (e) { }
   function R() { return ROLES.filter(function (r) { return r.id === role; })[0]; }
   var canFlag = function () { return R().rank >= 2; };          /* DM or above: flag fuel, ask for tanks */
-  var seesOps = function () { return R().rank >= 1; };          /* everyone but guests sees tanks and fuel */
+  var seesOps = function () { return ['filler', 'dm', 'instructor', 'owner'].indexOf(role) > -1; };    /* tanks, fuel, fill station */
+  var seesRooms = function () { return ['desk', 'housekeeping', 'owner'].indexOf(role) > -1; };       /* hostel rooms */
+  var floor = 'ground', selRoom = null;
+  var RN = {}; UART.layout.rooms.forEach(function (r) { RN[r.id] = r; });
 
   function fresh() {
     return { fuel: 'low', tanks: { full: 6, filling: 0, empty: 18 }, reqs: [], notes: [], seq: 1,
-      notes0: 0 };
+      rooms: { r11: 'occupied', r10: 'free', r9: 'clean', r8: 'occupied', r7: 'free', r6: 'free', s1: 'occupied', s2: 'free', s3: 'occupied', s4: 'free' } };
   }
   var S; function load() { try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch (e) { S = fresh(); } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
@@ -44,6 +49,14 @@
     else { notify(['filler'], 'Empties ready to fill', (n ? n + ' empties' : 'Empties') + ' whenever you have a moment. No rush. From ' + R().who, 'routine', 'tankEmpty', 'low'); }
     save(); render();
   }
+  function setRoom(id, st) {
+    var r = RN[id], who = R().who; if (!r || S.rooms[id] === st) { return; }
+    S.rooms[id] = st;
+    if (st === 'clean') { notify(['housekeeping', 'owner'], 'Room ' + r.n + ' needs cleaning', 'Checked out by ' + who + '. ' + r.t + '.', 'low', 'bed', 'low'); }
+    if (st === 'free') { notify(['desk', 'owner'], 'Room ' + r.n + ' is ready', 'Cleaned by ' + who + '. Free to book.', 'info', 'bed', 'ok'); }
+    if (st === 'occupied') { notify(['housekeeping', 'owner'], 'Room ' + r.n + ' checked in', 'By ' + who + '. No cleaning needed.', 'info', 'key', 'busy'); }
+    save(); render();
+  }
   function reqById(id) { return S.reqs.filter(function (q) { return q.id === id; })[0]; }
   function startFill(id) {
     var q = reqById(id), n; if (!q || q.status !== 'open') { return; }
@@ -63,19 +76,32 @@
       '<text y="62" text-anchor="middle">' + label + '</text></g>';
   }
   function map() {
-    var T = S.tanks, P = U.scene.pins, h = U.scene.build({ tanks: T }), openReq = S.reqs.filter(function (q) { return q.status !== 'done'; }), urgent = openReq.some(function (q) { return q.kind === 'urgent'; });
+    if (floor === 'up') { return mapUp(); }
+    var T = S.tanks, P = U.layout.pins.ground, h, openReq = S.reqs.filter(function (q) { return q.status !== 'done'; }), urgent = openReq.some(function (q) { return q.kind === 'urgent'; });
+    h = U.layout.ground({ tanks: T });
     if (seesOps()) {
-      h += pin('boat', S.fuel === 'full' ? 'fuelFull' : S.fuel === 'low' ? 'fuelLow' : 'fuelRefill', S.fuel === 'full' ? 'ok' : S.fuel === 'low' ? 'low' : 'alert', P.boat[0] - 78, P.boat[1], S.fuel === 'full' ? 'Fuel full' : S.fuel === 'low' ? 'Fuel low' : 'Refill ASAP', S.fuel === 'refill');
-      h += pin('tanks', T.empty > T.full ? 'tankEmpty' : 'tankFull', T.empty > T.full ? 'low' : 'ok', P.rack[0], P.rack[1] - 30, T.full + ' full · ' + T.empty + ' empty' + (T.filling ? ' · ' + T.filling + ' filling' : ''), false);
-      h += pin('fill', 'compressor', openReq.length ? (urgent ? 'alert' : 'low') : (T.filling ? 'busy' : 'ok'), P.fill[0] + 30, P.fill[1] + 12, openReq.length ? openReq.length + ' to fill' : 'Fill station', urgent);
+      h += pin('boat', S.fuel === 'full' ? 'fuelFull' : S.fuel === 'low' ? 'fuelLow' : 'fuelRefill', S.fuel === 'full' ? 'ok' : S.fuel === 'low' ? 'low' : 'alert', P.boat[0] - 110, P.boat[1], S.fuel === 'full' ? 'Fuel full' : S.fuel === 'low' ? 'Fuel low' : 'Refill ASAP', S.fuel === 'refill');
+      h += pin('tanks', T.empty > T.full ? 'tankEmpty' : 'tankFull', T.empty > T.full ? 'low' : 'ok', P.tanks[0], P.tanks[1] - 20, T.full + ' full · ' + T.empty + ' empty' + (T.filling ? ' · ' + T.filling + ' filling' : ''), false);
+      h += pin('fill', 'compressor', openReq.length ? (urgent ? 'alert' : 'low') : (T.filling ? 'busy' : 'ok'), P.fill[0], P.fill[1], openReq.length ? openReq.length + ' to fill' : 'Fill station', urgent);
     }
-    $('scene').innerHTML = h;
+    $('scene').setAttribute('viewBox', U.layout.viewGround); $('scene').innerHTML = h;
+  }
+  function mapUp() {
+    var h = U.layout.upstairs({ rooms: S.rooms }), P = U.layout.pins.up;
+    if (seesRooms()) {
+      UART.layout.rooms.forEach(function (r) {
+        var s = S.rooms[r.id];
+        h += pin('room:' + r.id, s === 'occupied' ? 'key' : 'bed', s === 'free' ? 'ok' : (s === 'occupied' ? 'busy' : 'low'), P[r.id][0], P[r.id][1] - 6, r.n + (s === 'clean' ? ' clean me' : (s === 'occupied' ? ' in' : ' free')), s === 'clean' && role === 'housekeeping').replace('<svg x="-36" y="-36" width="72" height="72"', '<svg x="-28" y="-28" width="56" height="56"').replace('y="62"', 'y="48"').replace('r="46"', 'r="36"');
+      });
+    }
+    $('scene').setAttribute('viewBox', U.layout.viewUp); $('scene').innerHTML = h;
   }
 
   /* ---- panel (what you can do, by level) ---- */
   var form = { mode: 'urgent', n: 15, by: '', why: 'PM dive' }, focus = 'tanks';
   function panel() {
     var r = R(), h = '', openReq = S.reqs.filter(function (q) { return q.status !== 'done'; });
+    if (floor === 'up') { return panelUp(); }
     if (r.rank === 0) {
       h = '<h3>Your boat</h3><p>Leaves at <b>1:30pm</b> from the dock, on time. Bring a towel and your logbook.</p><p class="note">Guests see their own plan and the boat, not the shop’s tanks or fuel. Ask at the counter if you need anything.</p>';
     } else {
@@ -100,6 +126,23 @@
     $('panel').innerHTML = h;
   }
 
+  var STN = { free: 'Free', occupied: 'Occupied', clean: 'Needs cleaning' };
+  function panelUp() {
+    var r = R(), h = '<h3>Level 2 \u00b7 rooms</h3>', rm = selRoom && RN[selRoom], s;
+    if (!seesRooms()) { $('panel').innerHTML = h + '<p class="note">Rooms are for the front desk, housekeeping and the owner. Your own room is in your applet.</p>'; return; }
+    var counts = { free: 0, occupied: 0, clean: 0 }; Object.keys(S.rooms).forEach(function (k) { counts[S.rooms[k]]++; });
+    h += '<p><b>' + counts.free + '</b> free \u00b7 <b>' + counts.occupied + '</b> occupied \u00b7 <b>' + counts.clean + '</b> to clean</p>';
+    if (!rm) { h += '<p class="note">Tap a room on the map.</p>'; }
+    else {
+      s = S.rooms[rm.id];
+      h += '<div class="req"><b>Room ' + rm.n + ' \u00b7 ' + rm.t + '</b><br>' + STN[s] + '<br>' +
+        ((role === 'desk' || role === 'owner') && s === 'free' ? '<button class="u-btn sm" data-room="' + rm.id + '" data-to="occupied">Check in</button>' : '') +
+        ((role === 'desk' || role === 'owner') && s === 'occupied' ? '<button class="u-btn sm" data-room="' + rm.id + '" data-to="clean">Check out</button>' : '') +
+        ((role === 'housekeeping' || role === 'owner') && s === 'clean' ? '<button class="u-btn sm" data-room="' + rm.id + '" data-to="free">Mark clean</button>' : '') + '</div>';
+    }
+    $('panel').innerHTML = h;
+  }
+
   /* ---- applet ---- */
   function applet() {
     var r = R(), list = S.notes.filter(function (n) { return n.to.indexOf(role) > -1; }), h = '';
@@ -119,19 +162,22 @@
   function roles() {
     $('roles').innerHTML = ROLES.map(function (r) { return '<button data-role="' + r.id + '" class="' + (r.id === role ? 'on' : '') + '">' + r.name + '</button>'; }).join('');
   }
-  function render() { map(); panel(); applet(); roles(); }
+  function floors() { $('floors').innerHTML = [['ground', 'Ground floor'], ['up', 'Level 2']].map(function (f) { return '<button data-floor="' + f[0] + '" class="' + (floor === f[0] ? 'on' : '') + '">' + f[1] + '</button>'; }).join(''); }
+  function render() { map(); panel(); applet(); roles(); floors(); }
 
   document.addEventListener('click', function (e) {
-    var t = e.target, el = t.closest ? t.closest('[data-role],[data-fuel],[data-mode],[data-start],[data-done],#send,#reset,.pin') : null;
+    var t = e.target, el = t.closest ? t.closest('[data-role],[data-floor],[data-room],[data-fuel],[data-mode],[data-start],[data-done],#send,#reset,.pin') : null;
     if (!el) { return; }
-    if (el.hasAttribute('data-role')) { role = el.getAttribute('data-role'); try { localStorage.setItem('ud-role', role); } catch (x) { } render(); }
+    if (el.hasAttribute('data-floor')) { floor = el.getAttribute('data-floor'); render(); }
+    else if (el.hasAttribute('data-room')) { setRoom(el.getAttribute('data-room'), el.getAttribute('data-to')); }
+    else if (el.hasAttribute('data-role')) { role = el.getAttribute('data-role'); try { localStorage.setItem('ud-role', role); } catch (x) { } render(); }
     else if (el.hasAttribute('data-fuel')) { setFuel(el.getAttribute('data-fuel')); }
     else if (el.hasAttribute('data-mode')) { form.n = +($('fn') && $('fn').value) || form.n; form.mode = el.getAttribute('data-mode'); panel(); }
     else if (el.hasAttribute('data-start')) { startFill(+el.getAttribute('data-start')); }
     else if (el.hasAttribute('data-done')) { doneFill(+el.getAttribute('data-done')); }
     else if (el.id === 'send') { form.n = Math.max(1, +$('fn').value || 1); form.why = $('fw').value; if (form.mode === 'urgent') { form.by = $('fb').value || inTwoHours(); } request(form.mode, form.n, form.by || inTwoHours(), form.why); }
     else if (el.id === 'reset') { S = fresh(); save(); render(); }
-    else if (el.classList && el.classList.contains('pin')) { var p = $('panel'); p.scrollIntoView && p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    else if (el.classList && el.classList.contains('pin')) { var pn = el.getAttribute('data-pin'); if (pn.indexOf('room:') === 0) { selRoom = pn.slice(5); panel(); } var p = $('panel'); p.scrollIntoView && p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   });
   document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('pin')) { e.preventDefault(); $('panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
   window.addEventListener('storage', function (e) { if (e.key === KEY) { load(); render(); } });

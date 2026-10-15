@@ -22,6 +22,8 @@
   .pin:focus-visible .halo { opacity: 1; stroke: #FFFFFF; }
   .pin text { font: 800 22px 'Baloo 2', sans-serif; fill: var(--ink); paint-order: stroke; stroke: #FFFFFF; stroke-width: 7px; stroke-linejoin: round; }
   @keyframes pulse { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
+  .rl { font-family: 'Baloo 2', sans-serif; font-weight: 800; fill: var(--ink); paint-order: stroke; stroke: #FFFFFF; stroke-width: 5px; stroke-linejoin: round; }
+  .mapcol { max-width: 760px; }
   .panel { margin: 12px 0 0; }
   .panel h3 { font-size: 22px; margin: 0 0 8px; }
   .seg { display: flex; flex-wrap: wrap; margin: 6px 0; }
@@ -60,7 +62,8 @@
 <div class="top"><span class="brand">Utila Dives &middot; crew</span><div class="roles" id="roles"></div></div>
 <div class="layout">
   <div class="mapcol">
-    <svg class="u-scene" id="scene" viewBox="0 0 1200 1000" role="img" aria-label="Utila Dives from above with status pins for the boat's fuel, the tanks and the fill station."></svg>
+    <div class="seg" id="floors"></div>
+    <svg class="u-scene" id="scene" viewBox="0 0 1000 1760" role="img" aria-label="Utila Dives from above with status pins for the boat's fuel, the tanks and the fill station."></svg>
     <div class="u-card panel" id="panel"></div>
   </div>
   <div class="side">
@@ -72,7 +75,7 @@
 <script src="../../art/kit.js"></script>
 <script src="../../art/places.js"></script>
 <script src="../../art/icons.js"></script>
-<script src="scene.js"></script>
+<script src="layout.js"></script>
 <script src="ops.js"></script>
 </body>
 </html>
