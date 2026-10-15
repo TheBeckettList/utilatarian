@@ -24,9 +24,14 @@ Object.keys(P.places).forEach(function (id) {
   css += '[data-theme="dark"] ' + sel + ', [data-theme="dark"]' + sel + ' {\n' + decl(pl.dark, '') + '\n}\n\n';
 });
 
+Object.keys(P.areas || {}).forEach(function (id) {
+  var ar = P.areas[id];
+  css += '/* area ' + ar.name + ' (a boat\'s own tint inside Tripwrights) */\n[data-area="' + id + '"] {\n' + decl(ar.light, '') + '\n}\n';
+});
+css += '\n';
 css += readFileSync('art/components.css', 'utf8');
 writeFileSync('art/tokens.css', css);
 
 writeFileSync('art/palettes.js',
-  HEAD + '(function (w) { \'use strict\'; w.UART = w.UART || {}; w.UART.palettes = ' + JSON.stringify({ world: P.world, places: P.places }) + '; })(window);\n');
+  HEAD + '(function (w) { \'use strict\'; w.UART = w.UART || {}; w.UART.palettes = ' + JSON.stringify({ world: P.world, places: P.places, areas: P.areas }) + '; })(window);\n');
 console.log('wrote art/tokens.css and art/palettes.js');

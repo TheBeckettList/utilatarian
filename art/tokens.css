@@ -173,6 +173,51 @@
   --line: #25484F;
 }
 
+/* area Utila (a boat's own tint inside Tripwrights) */
+[data-area="utila"] {
+  --ink: #14383E;
+  --accent: #F2B632;
+  --accent-ink: #2B2000;
+  --accent-deep: #8A5C00;
+  --edge: #C98F10;
+  --soft: #FBDE8F;
+  --wash: #FFF1CC;
+  --pop: #17909B;
+}
+/* area Roatán (a boat's own tint inside Tripwrights) */
+[data-area="roatan"] {
+  --ink: #4A2A25;
+  --accent: #E9735C;
+  --accent-ink: #FFFFFF;
+  --accent-deep: #B8503B;
+  --edge: #B8503B;
+  --soft: #F5B8A8;
+  --wash: #FDEAE4;
+  --pop: #2C8FA0;
+}
+/* area Guanaja (a boat's own tint inside Tripwrights) */
+[data-area="guanaja"] {
+  --ink: #173A2E;
+  --accent: #3E9B7A;
+  --accent-ink: #FFFFFF;
+  --accent-deep: #2C7058;
+  --edge: #2C7058;
+  --soft: #A9DBC6;
+  --wash: #E3F4EC;
+  --pop: #E9B44C;
+}
+/* area Koh Tao (a boat's own tint inside Tripwrights) */
+[data-area="kohtao"] {
+  --ink: #2E2347;
+  --accent: #8A6BB8;
+  --accent-ink: #FFFFFF;
+  --accent-deep: #664A93;
+  --edge: #664A93;
+  --soft: #CDBDE6;
+  --wash: #F0EAF8;
+  --pop: #F2A641;
+}
+
 /* Shared UI pieces, all driven by the place tokens above. Put data-place="<id>" on <html> (or on any container to tint just that part).
    The shape language comes straight from Josie's: white cards with a soft ring instead of a border, pill buttons with a darker ledge
    underneath, big round Baloo numbers, tonal chips. No outlines, no gradients. */

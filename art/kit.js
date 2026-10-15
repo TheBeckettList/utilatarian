@@ -179,6 +179,85 @@
     for (i = 0; i < (lines || 3); i++) { h += '<rect x="' + f(-wd / 2 + 18) + '" y="' + f(-ht / 2 + 18 + i * 14) + '" width="' + f((wd - 36) * (1 - (i % 3) * .22)) + '" height="5" rx="2.5" fill="' + (i % 2 ? p.soft : p.accent) + '"/>'; }
     return h;
   };
+
+  /* ---- Tripwrights fleet: one adventure boat per area, each carrying that area's gear. p = the area's light palette. Bow up, ~116 x 300. ---- */
+  var HULL = 'M0,-150 C46,-112 58,-40 58,56 L58,128 Q58,150 36,150 H-36 Q-58,150 -58,128 L-58,56 C-58,-40 -46,-112 0,-150Z';
+  function layers(p, sx, deckSx) {
+    return '<path d="' + HULL + '" fill="#FFFFFF" transform="scale(' + sx + ',1)"/><path d="' + HULL + '" fill="' + p.accent + '" transform="scale(' + (sx * .93).toFixed(2) + ',.95)"/><path d="' + HULL + '" fill="' + W.deck + '" transform="scale(' + (sx * .84).toFixed(2) + ',.9)"/>';
+  }
+  P.boatKind = function (kind, p) {
+    p = pal(p);
+    var h = '', i;
+    if (kind === 'dive') { return P.boat(p, 300); }
+    if (kind === 'catamaran') {
+      var hull = 'M0,-150 C14,-120 17,-60 17,40 L17,140 Q17,152 6,152 H-6 Q-17,152 -17,140 L-17,40 C-17,-60 -14,-120 0,-150Z';
+      h = P.shadow(70, 150, 12, 10);
+      for (i = -1; i <= 1; i += 2) { h += '<g transform="translate(' + (i * 40) + ',0)"><path d="' + hull + '" fill="#FFFFFF"/><path d="' + hull + '" fill="' + p.accent + '" transform="scale(.6,.94)"/></g>'; }
+      h += '<rect x="-40" y="-70" width="80" height="170" rx="10" fill="' + p.soft + '"/>';
+      for (i = -60; i < 100; i += 22) { h += '<rect x="-40" y="' + i + '" width="80" height="2.5" fill="#FFFFFF" opacity=".7"/>'; }
+      h += '<rect x="-3" y="-150" width="6" height="90" fill="' + W['wood-dk'] + '"/>' + '<path d="M-5,-40 L7,-40 L22,118 L-6,126Z" fill="#FFFFFF"/><path d="M-5,-40 L2,-40 L2,122 L-6,126Z" fill="' + p.soft + '" opacity=".7"/><circle cx="1" cy="-40" r="7" fill="' + W['wood-dk'] + '"/>';
+      return h + U.at(-22, 30, -18, .55, P.fins(p.pop, '#FFFFFF')) + U.at(24, 56, 14, .55, P.fins(p.accent, '#FFFFFF')) + U.at(-18, 84, 0, .6, P.mask('#3E4A52', '#BFE9F0')) + U.at(0, -96, 0, 1, '<rect x="-14" y="-12" width="28" height="24" rx="8" fill="#FFFFFF"/><rect x="-9" y="-7" width="18" height="12" rx="5" fill="' + W.sea + '"/>');
+    }
+    if (kind === 'panga') {
+      h = P.shadow(52, 150, 10, 10) + layers(p, .74);
+      h += '<rect x="-34" y="-30" width="68" height="64" rx="14" fill="' + p.accent + '"/><rect x="-28" y="-24" width="56" height="52" rx="10" fill="' + p.soft + '"/>';
+      h += '<rect x="-24" y="62" width="48" height="30" rx="8" fill="#FFFFFF"/><rect x="-24" y="62" width="48" height="12" rx="8" fill="' + p.pop + '"/>';
+      h += '<path d="M-22,-60 L-70,-150 M0,-70 L0,-170 M22,-60 L70,-150" stroke="' + W['wood-dk'] + '" stroke-width="3.5" stroke-linecap="round"/>';
+      h += '<circle cx="0" cy="-86" r="16" fill="' + p.pop + '"/><circle cx="0" cy="-86" r="9" fill="#FFFFFF" opacity=".5"/>';
+      return h + '<rect x="-14" y="128" width="28" height="30" rx="7" fill="#4A5A63"/>' + U.at(0, 8, 0, 1, P.crab()).replace(/<g transform="translate\(-30,-25\)">.*$/, '');
+    }
+    if (kind === 'longtail') {
+      h = P.shadow(40, 150, 10, 10) + layers(p, .62);
+      h += '<rect x="-30" y="-36" width="60" height="110" rx="14" fill="' + p.pop + '"/>';
+      for (i = 0; i < 4; i++) { h += '<rect x="' + (-30 + i * 15) + '" y="-36" width="7.5" height="110" fill="#FFFFFF" opacity=".28"/>'; }
+      h += '<g transform="translate(0,-160)">';
+      var rib = [p.accent, '#FFFFFF', p.pop, p.soft, '#E9735C'];
+      for (i = 0; i < 5; i++) { h += '<rect x="' + (-24 + i * 10) + '" y="' + (i % 2 ? 8 : 0) + '" width="6" height="26" rx="3" fill="' + rib[i] + '"/>'; }
+      h += '</g>';
+      h += '<path d="M0,140 L0,236" stroke="' + W['wood-dk'] + '" stroke-width="7" stroke-linecap="round"/><circle cx="0" cy="240" r="9" fill="#4A5A63"/><rect x="-12" y="118" width="24" height="26" rx="7" fill="#4A5A63"/>';
+      return h + U.at(0, -92, 0, 1, '<rect x="-20" y="-14" width="40" height="30" rx="10" fill="' + p.accent + '"/><rect x="-14" y="-8" width="28" height="12" rx="5" fill="#FFFFFF" opacity=".35"/>') + U.at(0, 100, 0, 1, '<circle r="20" fill="#FFFFFF"/><path d="M0,0 L20,0 A20,20 0 0 0 14,-14Z" fill="' + p.accent + '"/><circle r="3" fill="' + W['wood-dk'] + '"/>');
+    }
+    return P.boat(p, 300);
+  };
+  /* a float plane from above, nose up: two pontoons, a wide wing, a prop that spins if the page defines .spin */
+  P.floatplane = function (p) {
+    p = pal(p);
+    return P.shadow(100, 90, 14, 16) +
+      '<rect x="-48" y="-30" width="20" height="150" rx="10" fill="#FFFFFF"/><rect x="28" y="-30" width="20" height="150" rx="10" fill="#FFFFFF"/><rect x="-44" y="-26" width="12" height="140" rx="6" fill="' + p.soft + '"/><rect x="32" y="-26" width="12" height="140" rx="6" fill="' + p.soft + '"/>' +
+      '<rect x="-12" y="40" width="24" height="96" rx="12" fill="#FFFFFF"/><rect x="-46" y="112" width="92" height="16" rx="8" fill="#FFFFFF"/><rect x="-46" y="112" width="92" height="7" rx="4" fill="' + p.accent + '"/>' +
+      '<rect x="-112" y="-40" width="224" height="52" rx="16" fill="#FFFFFF"/><rect x="-112" y="-40" width="224" height="20" rx="10" fill="' + p.accent + '"/><rect x="-100" y="-4" width="200" height="6" rx="3" fill="' + p.soft + '"/>' +
+      '<ellipse cx="0" cy="-8" rx="24" ry="68" fill="#FFFFFF"/><ellipse cx="0" cy="-30" rx="16" ry="22" fill="' + W.sea + '"/><ellipse cx="-5" cy="-37" rx="4" ry="8" fill="#FFFFFF" opacity=".55"/>' +
+      '<g class="spin"><rect x="-4" y="-122" width="8" height="92" rx="4" fill="' + p.ink + '" opacity=".4"/></g><circle cy="-76" r="8" fill="' + p.pop + '"/>';
+  };
+  /* a small top-down helicopter (a bubble, rotor spinning if the page defines .spin) */
+  P.heli = function (p) {
+    p = pal(p);
+    return P.shadow(40, 56, 16, 18) + '<rect x="-5" y="20" width="10" height="82" rx="5" fill="#FFFFFF"/><rect x="-18" y="96" width="36" height="8" rx="4" fill="' + p.accent + '"/>' +
+      '<ellipse cx="0" cy="-2" rx="30" ry="42" fill="#FFFFFF"/><ellipse cx="0" cy="-14" rx="21" ry="26" fill="' + W.sea + '"/><ellipse cx="-7" cy="-22" rx="6" ry="10" fill="#FFFFFF" opacity=".55"/>' +
+      '<rect x="-30" y="26" width="60" height="7" rx="3" fill="' + p.accent + '"/>' +
+      '<g class="spin"><rect x="-84" y="-5" width="168" height="10" rx="5" fill="' + p.ink + '" opacity=".4"/><rect x="-5" y="-84" width="10" height="168" rx="5" fill="' + p.ink + '" opacity=".4"/></g><circle r="8" fill="' + p.pop + '"/>';
+  };
+  P.container = function (wd, ht, color) {
+    var h = P.shadow(wd / 2, ht / 4, 6, ht / 2 + 4) + '<rect x="' + f(-wd / 2) + '" y="' + f(-ht / 2) + '" width="' + wd + '" height="' + ht + '" rx="8" fill="' + color + '"/>', x;
+    for (x = -wd / 2 + 12; x < wd / 2 - 6; x += 12) { h += '<rect x="' + f(x) + '" y="' + f(-ht / 2 + 4) + '" width="4" height="' + (ht - 8) + '" rx="2" fill="#FFFFFF" opacity=".22"/>'; }
+    return h;
+  };
+  /* the globe on its stand */
+  P.globe = function (r, p) {
+    p = pal(p); r = r || 70;
+    return P.shadow(r * 1.05, r * .5, 10, r * .85) + '<circle r="' + f(r * 1.12) + '" fill="' + p.pop + '"/><circle r="' + r + '" fill="#2F7FAE"/><circle r="' + f(r * .94) + '" fill="#4A9CC8"/>' +
+      '<path d="' + P.blobPath(-r * .3, -r * .25, r * .34, r * .26, 4, .3) + '" fill="' + W['leaf-pale'] + '"/><path d="' + P.blobPath(r * .3, r * .22, r * .3, r * .38, 8, .3) + '" fill="' + W['leaf-lt'] + '"/><path d="' + P.blobPath(r * .12, -r * .55, r * .18, r * .1, 2, .3) + '" fill="#FFFFFF" opacity=".85"/>' +
+      '<ellipse cx="' + f(-r * .35) + '" cy="' + f(-r * .4) + '" rx="' + f(r * .25) + '" ry="' + f(r * .14) + '" fill="#FFFFFF" opacity=".25" transform="rotate(-30 ' + f(-r * .35) + ' ' + f(-r * .4) + ')"/>';
+  };
+  /* a small shop building, roof off, in its own palette (for area maps): wd x ht */
+  P.building = function (p, wd, ht) {
+    p = pal(p);
+    return P.shadow(wd / 2, ht / 4, 8, ht / 2 + 4) + '<rect x="' + f(-wd / 2 - 7) + '" y="' + f(-ht / 2 - 7) + '" width="' + (wd + 14) + '" height="' + (ht + 14) + '" rx="16" fill="' + W['sand-dk'] + '"/><rect x="' + f(-wd / 2) + '" y="' + f(-ht / 2) + '" width="' + wd + '" height="' + ht + '" rx="12" fill="' + (p.wash || '#FFF') + '"/>' +
+      '<rect x="' + f(-wd / 2) + '" y="' + f(-ht / 2) + '" width="' + wd + '" height="' + f(ht * .26) + '" rx="12" fill="' + p.soft + '"/>' +
+      '<rect x="' + f(-wd * .36) + '" y="' + f(-ht * .06) + '" width="' + f(wd * .72) + '" height="' + f(ht * .2) + '" rx="8" fill="' + p.accent + '"/><rect x="' + f(-wd * .36) + '" y="' + f(-ht * .06) + '" width="' + f(wd * .72) + '" height="' + f(ht * .12) + '" rx="8" fill="#FFFFFF"/>' +
+      '<rect x="' + f(-14) + '" y="' + f(ht / 2 - 8) + '" width="28" height="12" rx="5" fill="' + p.accent + '"/>';
+  };
+
   /* sea: flat bands + foam lines, to fill a rect (the same water everywhere) */
   P.sea = function (x, y, wd, ht) {
     var h = '<rect x="' + x + '" y="' + y + '" width="' + wd + '" height="' + ht + '" fill="' + W.sea + '"/><rect x="' + x + '" y="' + f(y + ht * .5) + '" width="' + wd + '" height="' + f(ht * .5) + '" fill="' + W['sea-2'] + '"/><rect x="' + x + '" y="' + f(y + ht * .8) + '" width="' + wd + '" height="' + f(ht * .2) + '" fill="' + W['sea-deep'] + '"/>', i;
