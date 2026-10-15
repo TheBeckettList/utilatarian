@@ -1,51 +1,75 @@
-# Vision — a way to travel the world that also builds the places it visits
+# Vision — Utilitarian as a toolkit that grows itself, island by island
 
-This is the long view. Nothing here is being built yet; it's here so near-term choices point the right way.
+(Replaces an earlier draft that misread this as local hiring and training inside shops. It isn't.)
 
-**Utila first. Then Roatán and Guanaja. Then anywhere with good people and a reef, trail or workshop.**
+Utilitarian is a **repeatable way to put every place on an island on a simple, free POS and onto one shared
+map**, produced by a small number of people with AI help, anywhere in the world.
 
-## The idea
-Travelers plan with real, current information. Locals run real businesses with free, simple tools.
-Money and skills stay where the trip is. Digital only makes the real thing easier.
+> One person who knows the island — say a guy in Koh Tao sketching places and knowing the lay of the land
+> far better than we do — gets the toolkit and turns out about five POS systems a week, for a year, and an
+> island fills in.
 
-## Three layers
+Tripwrights is an easy trip planner built on top of what that produces. It is a view, not the product.
 
-1. **Run (the POS, free to participating places).** Josie's is the model: a POS, a menu, hours, a website,
-   built to work on old tablets and bad internet, in the shop's languages. Each place owns its own data.
-2. **Connect (Utilitarian, the island hub).** Each place's public card — hours, closures, what it offers
-   and what it asks of the guest — gathered per island. Tripwrights, The Bay and anything else read from
-   it. An island is a small, self-contained hub; the world is many islands, not one big database.
-3. **Travel (Tripwrights).** A calm planner, dive-capable: it knows what each person is certified for,
-   what each activity asks, and plans real days in Morning / Afternoon / Evening blocks.
+## The pipeline (what the toolkit has to make easy)
 
-## The part that makes it more than a booking app: hire, train, enable
-The same data that plans a trip shows what a place needs.
+```
+ 1  SKETCH       Island partner walks the island: places, who runs them, hours, menu boards, languages,
+                 map spot. A phone, a notebook, photos of boards. No tech skill needed.
+ 2  CAPTURE      AI turns the sketch into data: menu from a photo of a board (Josie's did this by hand with
+                 005_real_menu.sql + make_seed.py), hours, translations, a palette for the place.
+ 3  GENERATE     A new shop's POS from the Josie's template: its own Supabase project, its own site,
+                 its own menu, hours and palette. Config, not custom code.
+ 4  CHECK        A short checklist and automated checks (prices, hours, an order end-to-end, offline).
+ 5  HAND OVER    On-site: set up the tablet, train the staff, one laminated page. The owner owns the data.
+ 6  PUBLISH      The shop's public place card registers in the island hub; the place now appears,
+                 oversized and in its own colors, on the map.
+ 7  GROW         Next shop. The island map fills in; Tripwrights gets better for free.
+```
 
-- **Hire.** A shop publishes an opening ("deckhand, Saturdays", "divemaster, Mar–Aug"). Locals see openings
-  for their own island first, in their own language. Hiring happens in WhatsApp, where people already are.
-- **Train.** Skills are the ladder: for diving that is Open Water → Advanced → Rescue → Divemaster →
-  Instructor, and the same shape exists for guiding, cooking, boat handling, accounting. A traveler who
-  learns to dive on a trip is one rung; a local who becomes a divemaster is another, with a clear path and a
-  clear next opening. We show the ladder and who offers each rung locally.
-- **Enable.** Free tools (POS, scheduling, a place card), a shared playbook for opening a new place of the
-  same kind, and a way for one shop to sponsor another's staff training. No middleman fee on the shop.
+The bottleneck is a person's day, not engineering. The toolkit's job is to cut steps 2–6 from days to hours.
 
-A traveler's money has a visible destination: a learn-to-dive booking funds the local instructor, a rest
-day at a family restaurant funds that restaurant. The planner can say so in one line, never a lecture.
+## What we need to build (in order of leverage)
+1. **A template POS**, extracted from Josie's: everything shop-specific (name, languages, categories,
+   hours, palette, station layout) is config. Josie's keeps running unchanged.
+2. **Provisioning script**: new Supabase project + schema migrations + seed + site, from one config file.
+   (Josie's already has 21 numbered migrations; that order is the recipe.)
+3. **AI capture kit**: prompts and scripts that turn photos/notes into the config file and a seed, with a
+   human review step. This is where AI saves the most time.
+4. **The island hub**: registry + place cards (already designed in README.md). A new island is one hub
+   config plus a partner.
+5. **Partner playbook**: how to sketch an island, what to ask a shop, how to run an install day,
+   a first-week support checklist. Short enough to read in an evening.
+6. **Quality gate**: nothing goes on the public map until the checklist passes.
+
+## Roles
+- **Utilitarian lead (you):** the toolkit, the hub, the standards, and the people.
+- **Island partner:** knows the land, sketches, installs, supports their island. Needs no developer skills.
+- **AI:** drafts configs, translations, seeds, checks, docs and the planner; a human approves what ships.
+- **Shops:** run their place on a free POS they own.
+
+## Expansion
+Utila (Josie's first, then more) → Roatán and Guanaja → Koh Tao (partner already in mind) → wherever a
+good partner appears. An island is added when a partner exists, not before.
 
 ## Principles
-- **Local first.** Each island's data, language and rules belong to the island.
-- **Real over digital.** Nothing made up: places, hours, certifications, prices are what they actually are.
-- **Calm.** No photo walls, no pressure, no countdowns. Diner-dash and Animal Crossing in feel.
-- **Small and portable.** Works on old phones, bad networks, in Spanish, English and whatever the island speaks.
-- **Free for places, honest for everyone.** If money is ever involved, it is declared where it is earned.
+- **Free for the shop, honest for everyone.** If money is ever involved, it's declared where it's earned.
+- **Real over digital.** Nothing made up; digital only makes the real thing easier.
+- **Local knowledge is the scarce resource.** The toolkit's job is to put it to work, not replace it.
+- **Small, portable, offline-tolerant.** Old tablets, bad networks, local languages.
+- **Calm.** Diner-dash / Animal Crossing in feel, on the POS and in the planner.
 
-## Expansion order
-1. **Utila** — Josie's, a few more shops, Tripwrights dive-capable prototype.
-2. **Roatán** and **Guanaja** — same package, new hub rows. Tests whether an island is a config, not a build.
-3. **Other places** — only once an island has a local who wants to run it.
+## Open questions (need your call)
+1. **How is a partner paid?** (a fee per POS, a share of something, a salary from you?) This decides how
+   far "five a week for a year" can scale.
+2. **Hosting and cost:** one Supabase project per shop is simple and private, but costs add up across
+   hundreds of shops. Free tier limits, pausing, or a pooled option for tiny shops?
+3. **Support after install:** who answers when a tablet breaks on a Tuesday?
+4. **Countries differ:** currencies, receipts and tax rules, languages. Where does the template stop being
+   one template?
+5. **Ownership:** shop owns data and can leave with it. Confirm this is the rule.
 
 ## What would prove it works
-- A traveler finishes a plan, nothing in it is closed or wrong, and everyone in it is cleared to do what's in it.
-- A shop is added to the island in an afternoon, including its POS.
-- A local goes from a first job to a skilled one through the ladder, on their own island.
+- A new island partner goes from zero to five live shops in a week, using only the toolkit and the playbook.
+- A shop's POS is live in an afternoon and still running a year later.
+- A traveler's plan on a new island is correct the day its first shops go live.
