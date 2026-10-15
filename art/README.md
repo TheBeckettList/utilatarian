@@ -33,6 +33,9 @@ Rule of thumb: **if it is the ground, the water, a plant or a rock, it is shared
 - `tools/build-art.mjs` (repo root): `node tools/build-art.mjs` writes `tokens.css` and `palettes.js` from it.
 - `tokens.css`: world tokens, a `[data-place="…"]` block per place (light + dark), then `components.css` (cards, buttons, pills, chips, sign, sheet). Put `data-place="utila-dives"` on `<html>` or any container.
 - `kit.js`: ES5 SVG props: `UART.props.pot / palm / umbrella / table / counter / rock / reef / crab / turtle / boat / dock / buoy / tankRack / wetsuit / fins / mask / compressor / rinse / board / sea …`, placed with `UART.at(x, y, rot, scale, markup)`. Ported from Josie's: blob, reef, palm, crab.
+- `icons.js` + `icons.html`: icon tiles in Josie's manner (dive gear, tanks, boat fuel gauge, beds, keys, bell, ...), with status badges (`ok` check, `low` !, `alert` !!, `busy` ...). `UART.icon('tankFull', { p: palette, status: 'ok' })`.
+- `places.js`: *simplified* drawings of real places for island overviews (`placeJosies`, `placeDives`): same layout and landmarks as the place's own map, fewer small things; plus Tripwrights' fantasy props (`dome`, `lantern`, `jelly`, `whaleShadow`, `bridge`, `lights`).
+- Operating model (one map for staff and guests, roles, notifications): `docs/ops-model.md`.
 - Examples to copy: `places/utila-dives/` (a whole shop), Tripwrights' ship (`Tripwrights/index.html`), Josie's cafe map (`josiescafe/art/`).
 
 ## Using it from another repo

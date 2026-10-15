@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-place="utila-dives">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utila Dives crew</title>
+<link rel="stylesheet" href="../../art/tokens.css">
+<style>
+  body { margin: 0; font-size: 16px; line-height: 1.45; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; padding: 10px 16px; background: var(--card); }
+  .brand { font-family: var(--u-display); font-weight: 800; font-size: 24px; color: var(--accent-deep); margin-right: auto; }
+  .roles { display: flex; flex-wrap: wrap; margin: 4px 0; }
+  .roles button { margin: 3px 4px 3px 0; border: 0; cursor: pointer; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--wash); color: var(--accent-deep); box-shadow: inset 0 0 0 2px var(--soft); font: 800 14px var(--u-body); }
+  .roles button.on { background: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 var(--edge); }
+  .layout { display: flex; flex-wrap: wrap; max-width: 1280px; margin: 0 auto; padding: 14px 12px 40px; }
+  .mapcol { flex: 1 1 640px; min-width: 0; margin: 0 8px; }
+  .side { flex: 0 0 340px; margin: 0 8px; }
+  .u-scene { border-radius: var(--u-r-card); }
+  .pin { cursor: pointer; outline: none; }
+  .pin .halo { fill: none; stroke: #D9483B; stroke-width: 6; opacity: 0; }
+  .pin.alert .halo { opacity: .8; animation: pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  .pin:focus-visible .halo { opacity: 1; stroke: #FFFFFF; }
+  .pin text { font: 800 22px 'Baloo 2', sans-serif; fill: var(--ink); paint-order: stroke; stroke: #FFFFFF; stroke-width: 7px; stroke-linejoin: round; }
+  @keyframes pulse { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
+  .panel { margin: 12px 0 0; }
+  .panel h3 { font-size: 22px; margin: 0 0 8px; }
+  .seg { display: flex; flex-wrap: wrap; margin: 6px 0; }
+  .seg button { margin: 0 6px 6px 0; border: 0; cursor: pointer; min-height: 44px; padding: 0 16px; border-radius: 16px; background: var(--wash); color: var(--accent-deep); box-shadow: inset 0 0 0 2px var(--soft); font: 800 15px var(--u-body); display: flex; align-items: center; }
+  .seg button svg { width: 30px; height: 30px; margin-right: 8px; }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+  label { display: block; font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); margin: 10px 0 4px; }
+  input[type=number], input[type=time], input[type=text] { font: 700 18px var(--u-body); padding: 8px 12px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 2px var(--soft); background: var(--card); color: var(--ink); width: 130px; }
+  input[type=text] { width: 100%; box-sizing: border-box; }
+  .req { border-radius: 24px; padding: 12px 14px; margin: 8px 0; background: var(--wash); box-shadow: inset 0 0 0 2px var(--soft); }
+  .req.urgent { background: #FDE4E0; box-shadow: inset 0 0 0 3px #D9483B; }
+  .req b { font-family: var(--u-display); font-size: 18px; }
+  .sm { min-height: 40px; padding: 8px 18px; font-size: 15px; margin: 8px 8px 0 0; }
+  .note { color: var(--ink2); font-size: 14px; margin: 8px 0 0; }
+  /* the companion applet: a phone */
+  .phone { background: var(--ink); border-radius: 40px; padding: 12px; box-shadow: 0 10px 30px rgba(20, 56, 62, .25); position: sticky; top: 10px; }
+  .screen { background: var(--paper); border-radius: 30px; min-height: 520px; overflow: hidden; }
+  .screen header { padding: 14px 16px 6px; display: flex; align-items: center; }
+  .screen header b { font-family: var(--u-display); font-size: 20px; color: var(--accent-deep); flex: 1; }
+  .nlist { padding: 0 10px 14px; }
+  .n { display: flex; align-items: flex-start; background: var(--card); border-radius: 22px; padding: 8px 12px 8px 8px; margin: 8px 0; box-shadow: 0 0 0 3px var(--soft); }
+  .n.urgent { box-shadow: 0 0 0 3px #D9483B; background: #FFF3F1; }
+  .n.routine, .n.info { box-shadow: 0 0 0 2px var(--line); }
+  .n svg { width: 46px; height: 46px; flex: none; margin-right: 8px; }
+  .n b { display: block; font-family: var(--u-display); font-size: 16px; line-height: 1.15; }
+  .n span { display: block; font-size: 14px; color: var(--ink2); }
+  .n time { font-size: 12px; color: var(--ink2); font-weight: 800; }
+  .day { margin: 0 10px 14px; }
+  .day .row { display: flex; align-items: center; background: var(--card); border-radius: 20px; padding: 8px; margin: 8px 0; box-shadow: 0 0 0 2px var(--line); }
+  .day .row svg { width: 40px; height: 40px; margin-right: 10px; }
+  .tools { margin: 16px 8px 0; font-size: 14px; color: var(--ink2); }
+  .tools button { border: 0; background: none; color: var(--accent-deep); font-weight: 800; text-decoration: underline; cursor: pointer; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="top"><span class="brand">Utila Dives &middot; crew</span><div class="roles" id="roles"></div></div>
+<div class="layout">
+  <div class="mapcol">
+    <svg class="u-scene" id="scene" viewBox="0 0 1200 1000" role="img" aria-label="Utila Dives from above with status pins for the boat's fuel, the tanks and the fill station."></svg>
+    <div class="u-card panel" id="panel"></div>
+  </div>
+  <div class="side">
+    <div class="phone"><div class="screen"><header><b id="who">Applet</b><span class="u-badge" id="count">0</span></header><div id="applet"></div></div></div>
+    <p class="tools">Sample shop. Changes are shared between tabs on this device so you can watch two roles talk. <button id="reset">Reset the demo</button></p>
+  </div>
+</div>
+<script src="../../art/palettes.js"></script>
+<script src="../../art/kit.js"></script>
+<script src="../../art/places.js"></script>
+<script src="../../art/icons.js"></script>
+<script src="scene.js"></script>
+<script src="ops.js"></script>
+</body>
+</html>

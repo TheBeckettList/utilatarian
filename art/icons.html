@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" data-place="utila-dives">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Island icons</title>
+<link rel="stylesheet" href="tokens.css">
+<style>body{margin:0;padding:24px 18px 40px;max-width:1000px;margin:0 auto}h1{font-size:36px;margin:0 0 4px}h2{font-size:26px;margin:28px 0 12px}
+.row{display:flex;flex-wrap:wrap}.i{width:104px;margin:0 10px 14px 0;text-align:center;font-weight:800;font-size:13px;color:var(--ink2)}.i svg{width:96px;height:96px;display:block;margin:0 auto 4px}</style></head>
+<body><h1>Island icons</h1><p class="u-muted">Soft tiles, one object, two or three tones. Status is a badge with a mark, never color alone. Tinted by <code>data-place</code>.</p>
+<div id="b"></div>
+<script src="palettes.js"></script><script src="kit.js"></script><script src="icons.js"></script>
+<script>
+var B=document.getElementById('b'),U=UART;
+function row(t,items,p){var h='<h2>'+t+'</h2><div class="row">';items.forEach(function(x){h+='<div class="i">'+U.icon(x[0],{p:p,status:x[2],tone:x[3]})+x[1]+'</div>';});B.innerHTML+=h+'</div>';}
+row('Dive gear',[['tank','Tank'],['bcd','BCD',null,'wash'],['regulator','Regulator',null,'wash'],['mask','Mask'],['fins','Fins'],['wetsuit','Wetsuit'],['logbook','Logbook',null,'soft'],['compressor','Fill station']]);
+row('Tanks',[['tankFull','Full','ok'],['tankFilling','Filling','busy'],['tankEmpty','Empty to fill','low']]);
+row('Boat fuel',[['fuelFull','Full','ok'],['fuelLow','Low','low'],['fuelRefill','Refill ASAP','alert'],['boat','Boat'],['flag','Dive flag',null,'wash']]);
+row('Stay',[['bed','Bed'],['bunk','Bunk',null,'wash'],['key','Room key'],['bell','Notification']]);
+row('Elsewhere on the island',[['cafe','Josie’s',null,'wash'],['globe','Globe'],['heli','Helicopter'],['plane','Seaplane']]);
+var jp=U.palettes.places['josies-cafe'].light,tp=U.palettes.places.tripwrights.light;
+row('Same icons in Josie’s hand',[['bed','Bed'],['key','Key'],['bell','Bell'],['logbook','Book']],jp);
+row('...and in Tripwrights’',[['bed','Bed'],['key','Key'],['bell','Bell'],['logbook','Book']],tp);
+</script></body></html>

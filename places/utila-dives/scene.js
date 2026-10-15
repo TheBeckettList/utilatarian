@@ -17,8 +17,9 @@
   function wall(x, y, wd, ht) { return '<rect x="' + x + '" y="' + (y + 4) + '" width="' + wd + '" height="' + ht + '" rx="3" fill="' + W['sand-dk'] + '"/><rect x="' + x + '" y="' + y + '" width="' + wd + '" height="' + ht + '" rx="3" fill="#FFFFFF"/>'; }
   function window_(x, y, wd) { return '<rect x="' + x + '" y="' + y + '" width="' + wd + '" height="22" rx="5" fill="' + PAL.pop + '"/><rect x="' + (x + 4) + '" y="' + (y + 4) + '" width="' + (wd - 8) + '" height="14" rx="3" fill="#CFEFF2"/><path d="M' + (x + wd * .35) + ',' + (y + 16) + ' l14,-12" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".8"/>'; }
 
-  function build() {
-    var h = '', i;
+  function build(o) {
+    o = o || {};
+    var h = '', i, T = o.tanks || { full: 4, empty: 0 }, rack = [], tot = Math.max(1, T.full + T.empty + (T.filling || 0));
     /* water and land */
     h += P.sea(0, 0, 1200, 1000);
     h += '<path d="' + COAST + ' L0,0 L1200,0 Z" fill="none"/>';
@@ -51,10 +52,12 @@
     for (i = 0; i < 5; i++) { h += at(120 + i * 66, 148, 0, .78, P.wetsuit(suits[i], i % 2 ? '#FFFFFF' : PAL.accent)); }
     h += at(120, 262, 0, 1, P.table(96, 96, true)) + at(104, 254, -14, .62, P.mask('#3E4A52', '#BFE9F0')) + at(138, 276, 12, .62, P.mask(PAL.accent, '#BFE9F0')) + at(120, 236, 0, 1, P.pot(13));
     h += at(104, 372, 0, 1, P.fins(PAL.accent, '#FFFFFF')) + at(168, 372, 0, 1, P.fins(PAL.pop, '#FFFFFF'));
-    h += at(350, 238, 0, 1, P.tankRack([PAL.accent, PAL.pop, PAL.accent, '#E9735C']));
+    for (i = 0; i < 4; i++) { rack.push(i / 4 < T.full / tot ? PAL.accent : (i / 4 < (T.full + (T.filling || 0)) / tot ? PAL.pop : '#C7CED2')); }
+    h += at(350, 238, 0, 1, P.tankRack(rack));
+    h += at(404, 196, 0, 1, '<rect x="-15" y="-12" width="30" height="48" rx="8" fill="' + W['wood-dk'] + '"/><rect x="-11" y="-8" width="22" height="40" rx="6" fill="' + PAL.soft + '"/><path d="M-6,0 h12 M-6,10 h12 M-6,20 h12" stroke="' + PAL.accent + '" stroke-width="3" stroke-linecap="round"/>');
     h += at(300, 336, 0, 1, P.counter(240, 58, PAL)) + at(250, 330, 0, 1, P.register());
     h += at(360, 332, 0, 1, '<rect x="-22" y="-12" width="44" height="26" rx="6" fill="#FFFFFF"/><rect x="-16" y="-6" width="14" height="14" rx="3" fill="' + PAL.accent + '"/><rect x="2" y="-6" width="14" height="14" rx="3" fill="' + PAL.pop + '"/>') + at(408, 304, 0, 1, P.pot(15));
-    h += at(262, 418, 0, 1, '<rect x="-30" y="-14" width="60" height="28" rx="12" fill="' + PAL.soft + '"/>') + at(400, 430, 0, 1, P.pot(16));
+    h += at(300, 420, 0, 1, '<rect x="-62" y="-22" width="124" height="44" rx="20" fill="' + PAL.soft + '"/><rect x="-52" y="-12" width="104" height="24" rx="12" fill="#FFFFFF" opacity=".6"/><path d="M-34,-12 v24 M-12,-12 v24 M10,-12 v24 M32,-12 v24" stroke="' + PAL.accent + '" stroke-width="3"/>') + at(400, 430, 0, 1, P.pot(16));
     /* fill room */
     h += at(532, 150, 0, 1, P.compressor(PAL)) + at(560, 206, 0, 1, '<rect x="-60" y="-6" width="120" height="8" rx="4" fill="' + W['wood-dk'] + '"/>') + at(486, 214, 0, .6, P.tankTop(17, PAL.accent)) + at(520, 214, 0, .6, P.tankTop(17, PAL.pop));
     /* classroom */
@@ -74,12 +77,17 @@
     h += at(940, 540, 0, 1, P.rock(34, 4)) + at(1000, 470, 0, 1, P.rock(24, 7)) + at(905, 580, 0, 1, P.rock(18, 2));
     h += at(740, 640, 18, .8, P.crab());
 
+    h += P.lights(70, 508, 640, 506, 14, 16);
+    h += at(770, 250, 0, 1, '<rect x="-60" y="-4" width="120" height="8" rx="4" fill="' + W['wood-dk'] + '"/><circle cx="-60" cy="0" r="7" fill="' + W['wood-dk'] + '"/><circle cx="60" cy="0" r="7" fill="' + W['wood-dk'] + '"/>' + at(-34, 40, 0, .6, P.wetsuit(PAL.pop, '#FFFFFF')) + at(0, 40, 0, .6, P.wetsuit(PAL.accent, '#FFFFFF')) + at(34, 40, 0, .6, P.wetsuit('#E9735C', '#FFFFFF')));
+    h += at(900, 400, 28, 1, P.shadow(16, 62, 6, 6) + '<path d="M0,-70 C16,-48 18,40 0,70 C-18,40 -16,-48 0,-70Z" fill="' + PAL.pop + '"/><path d="M0,-58 C10,-40 11,32 0,58 C-11,32 -10,-40 0,-58Z" fill="#FFFFFF" opacity=".35"/><rect x="-26" y="-4" width="52" height="5" rx="2.5" fill="' + W['wood-dk'] + '"/>');
+    h += at(940, 250, 24, 1, P.shadow(40, 14, 4, 22) + '<path d="M-48,0 Q0,40 48,0 Q0,16 -48,0Z" fill="' + PAL.soft + '"/><path d="M-48,0 Q0,40 48,0" stroke="' + PAL.accent + '" stroke-width="4" fill="none" stroke-linecap="round"/>');
     /* the dock runs out to sea, the boat tied alongside */
     h += at(800, 820, 0, 1, P.dock(70, 380));
     h += at(715, 820, 0, 1, P.boat(PAL, 300));
+    h += at(846, 700, 0, 1, '<rect x="-14" y="-22" width="28" height="44" rx="8" fill="#D9483B"/><rect x="-10" y="-16" width="20" height="14" rx="4" fill="#FFFFFF"/><path d="M14,6 q22,2 20,26" stroke="#4A5A63" stroke-width="4" fill="none" stroke-linecap="round"/>');
     h += at(836, 640, 0, 1, P.pot(14));
     return h;
   }
 
-  U.scene = { build: build, viewBox: '0 0 1200 1000' };
+  U.scene = { build: build, viewBox: '0 0 1200 1000', pins: { boat: [715, 700], rack: [350, 175], fill: [532, 100], dock: [800, 640] } };
 })(window);
