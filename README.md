@@ -44,7 +44,7 @@ Time is always **island local time**; the hub stores the island's timezone once.
 
 ## Registry (hub, v0)
 
-One table `places`: `id`, `name`, `kind`, `card_url`, `map_x`, `map_y` (position on the island map),
+One table `places`: `id`, `name`, `kind`, `card_url`, `lat`, `lng` (real coordinates),
 `palette`, `last_card` (jsonb), `last_seen`. Adding a shop to the island = adding one row.
 A scheduled job refreshes `last_card` from each `card_url`.
 
@@ -58,7 +58,13 @@ actual hours). Blocks are config, so a later power-user mode can use custom time
 
 ## Look and feel
 
-Calm, map-first, diner-dash / animal-crossing-ish. No photo walls. Creator and social links are *links*,
+Calm, map-first, diner-dash / animal-crossing-ish. No photo walls.
+
+**Real map, selectively stylised.** The base is a real map (real coordinates, so directions and distances
+are true) with a quiet, muted skin. Only **participating places** are stylised: drawn oversized in their own
+palette so they are the first thing you see. Where nobody participates, the map stays sparse — few labels,
+no clutter, no stock pins. The more places join, the more of the island comes alive. Stylising is driven by
+the registry (a place appears styled only if it has a row), so adding a shop needs no map editing. Creator and social links are *links*,
 not embedded media. **Every place gets its own palette** — Josie's keeps hers, Tripwrights gets its own
 (not pink), The Bay gets its own. A palette is a small set of tokens:
 `ink`, `paper`, `accent`, `accent-ink`, `soft` (+ a dark variant), so any app can tint a place's card in
@@ -72,8 +78,8 @@ the place's colors while the surrounding app stays in its own.
 
 ## Open questions
 
-- Illustrated island map vs. real map with a stylized skin (illustrated is simpler and fits the feel;
-  each new place then needs a spot drawn/placed).
+- Map library and tile source for the muted real-map base (needs to work offline-ish and on old phones,
+  like the POS). Each participating place needs a small hand-drawn marker/building illustration.
 - Exact scope of The Bay (owner overview): which numbers, if any, ever cross from a POS to the hub —
   default is none beyond the public card.
 - Palette for Tripwrights and The Bay.
