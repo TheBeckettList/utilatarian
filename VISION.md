@@ -52,6 +52,30 @@ The bottleneck is a person's day, not engineering. The toolkit's job is to cut s
 Utila (Josie's first, then more) → Roatán and Guanaja → Koh Tao (partner already in mind) → wherever a
 good partner appears. An island is added when a partner exists, not before.
 
+## One ecosystem, one person's whole arc
+
+The same app grows with you. Nobody switches apps; their role on the island changes.
+
+1. **Planning a week (traveller).** On Tripwrights: flights into San Pedro Sula, the bus to La Ceiba, the ferry to Utila,
+   Josie's ready when the ferry gets in, then the week in blocks: Josie's breakfasts, dives at Paradise, lunch, a hike.
+   As much or as little as you like: one ferry reminder, or every meal.
+2. **On the island (guest).** The plan becomes "what's on": the same map shows what is open now, menus, ordering ahead
+   at Josie's, your dive times, your tab.
+3. **Staying a month (local).** You stay on as a divemaster trainee. Same app, same account: your regular order, your
+   training schedule, the island's goings-on.
+4. **Working here (crew).** You become a divemaster. The dive shop's crew app (Paradise's ops view: boats, tanks, rooms,
+   who is diving with whom) is the same ecosystem you planned your first week in.
+
+What this asks of the build:
+- **One identity across roles** (WhatsApp login later): traveller, guest, local, crew are roles on one person, granted by
+  places (a shop adds you to its crew), never separate accounts.
+- **One map, one set of place cards**: the traveller's map, the guest's "open now" and the crew's ops view are the same
+  drawings with different layers (see `docs/ops-model.md`).
+- **Plans are plain data** (place, day, block), so a plan item can become an order at Josie's or a booking on a dive boat
+  when the shop accepts it.
+- **Getting there links out**: flights, buses and ferries link to whoever sells them (Utila Dream Ferry, the bus lines,
+  airlines); a partner can be integrated later without changing the plan.
+
 ## Principles
 - **Free for the shop, honest for everyone.** If money is ever involved, it's declared where it's earned.
 - **Real over digital.** Nothing made up; digital only makes the real thing easier.
