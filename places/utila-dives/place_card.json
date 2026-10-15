@@ -1,0 +1,29 @@
+{
+  "card_version": 0,
+  "id": "utila-dives",
+  "name": "Utila Dives",
+  "kind": "activity",
+  "sample": true,
+  "blurb": "Fun dives, first-time dives and courses off our own dock.",
+  "hours": {
+    "mon": "7:00-17:00",
+    "tue": "7:00-17:00",
+    "wed": "7:00-17:00",
+    "thu": "7:00-17:00",
+    "fri": "7:00-17:00",
+    "sat": "7:00-17:00",
+    "sun": "7:00-12:00"
+  },
+  "closed_until": null,
+  "closed_note": null,
+  "open_now": null,
+  "palette": {
+    "light": { "ink": "#14383E", "paper": "#FFF9EC", "accent": "#F2B632", "accent-ink": "#2B2000", "soft": "#FBDE8F" },
+    "dark": { "ink": "#F4F1E6", "paper": "#0B2327", "accent": "#F2B632", "accent-ink": "#2B2000", "soft": "#7A5F18" },
+    "source": "art/palettes.json#utila-dives"
+  },
+  "links": [
+    { "label": "Utila Dives", "url": "https://example.invalid/utila-dives", "type": "site" }
+  ],
+  "languages": ["en", "es"]
+}

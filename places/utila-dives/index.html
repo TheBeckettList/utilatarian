@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-place="utila-dives">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utila Dives</title>
+<meta name="description" content="Fun dives, first-time dives and courses off our own dock. A sample shop for the Utilitarian art style.">
+<link rel="stylesheet" href="../../art/tokens.css">
+<style>
+  body { margin: 0; font-size: 17px; line-height: 1.5; }
+  .top { display: flex; align-items: center; padding: 10px 18px; background: var(--card); }
+  .brand { font-family: var(--u-display); font-weight: 800; font-size: 26px; color: var(--accent-deep); flex: 1; letter-spacing: -.01em; }
+  .top a { color: var(--ink2); font-weight: 700; font-size: 14px; margin-right: 14px; }
+  .stage { position: relative; max-width: 1200px; margin: 0 auto; }
+  .stage .u-scene { border-radius: 0; }
+  .stage .u-sign { position: absolute; left: 58%; top: 7%; width: 19%; min-width: 150px; padding: 10px 6px; box-sizing: border-box; }
+  .stage .u-sign b { font-size: clamp(17px, 2.6vw, 28px); }
+  .stage .u-sign small { font-size: clamp(11px, 1.3vw, 15px); }
+  .stage .u-pill { font-size: clamp(11px, 1.5vw, 17px); padding: 2px 14px; margin-bottom: 4px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 22px 16px 40px; }
+  h2 { font-size: 34px; margin: 12px 0 14px; }
+  .trips { display: flex; flex-wrap: wrap; margin: 0 -8px; }
+  .trip { box-sizing: border-box; flex: 1 1 300px; margin: 8px; }
+  .trip h3 { font-size: 24px; display: flex; align-items: center; }
+  .trip h3 .u-tag { margin-left: auto; font-size: 17px; }
+  .trip p { margin: 6px 0 12px; color: var(--ink2); }
+  .trip .u-chip { margin-right: 6px; }
+  .info { display: flex; flex-wrap: wrap; margin: 8px -8px 0; }
+  .info .u-card { flex: 1 1 300px; margin: 8px; box-sizing: border-box; }
+  .hrs { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .hrs td { padding: 4px 0; } .hrs td:last-child { text-align: right; font-weight: 800; }
+  .hrs tr.today td { color: var(--accent-deep); font-weight: 800; }
+  footer { text-align: center; color: var(--ink2); font-size: 14px; padding: 6px 16px 30px; }
+</style>
+</head>
+<body>
+<div class="top"><span class="brand">Utila Dives</span><a href="#trips">Just the trips</a><a href="#where">Hours</a><span class="u-pill" id="open">Open</span></div>
+
+<div class="stage" id="stage">
+  <svg class="u-scene" id="scene" viewBox="0 0 1200 1000" role="img" aria-label="Utila Dives from above: the shop with its wetsuit wall, tank racks and counter, the rinse tanks and umbrella in the yard, and the dive boat tied up at the dock."></svg>
+  <div class="u-sign" id="sign"><span class="u-pill" id="signpill">Open</span><b id="signhrs">7:00 – 17:00</b><small id="signdays">Every day</small></div>
+</div>
+
+<div class="wrap">
+  <h2 id="trips">Trips and courses</h2>
+  <div class="trips" id="tripList"></div>
+
+  <h2 id="where">Hours and where</h2>
+  <div class="info">
+    <div class="u-card"><span class="u-kicker">Shop hours</span><table class="hrs" id="hrs"></table><p class="u-muted" style="margin:10px 0 0">Island time. Boats leave on the hour in the trips above; ask at the counter for the next one.</p></div>
+    <div class="u-card"><span class="u-kicker">Find us</span><p style="margin:0 0 10px">The yellow door, just before the dock. Look for the boat and the red-and-white flag.</p><p class="u-muted" style="margin:0">We speak English and Spanish.</p></div>
+  </div>
+</div>
+<footer>Utila Dives is a sample shop, made to build out the shared island art style. Not a real business; prices and times are made up.</footer>
+
+<script src="../../art/palettes.js"></script>
+<script src="../../art/kit.js"></script>
+<script src="scene.js"></script>
+<script>
+(function () {
+  'use strict';
+  document.getElementById('scene').innerHTML = UART.scene.build();
+
+  var TRIPS = [
+    { n: 'Fun dive', t: 'US$45', p: 'Two tanks on the reef, back for lunch. Gear is on the dock.', b: ['m', 'a'] },
+    { n: 'Discover scuba', t: 'US$95', p: 'Never dived? A pool-shallow first dive with an instructor beside you the whole time.', b: ['m', 'a'] },
+    { n: 'Open Water course', t: 'US$370', p: 'Three days, theory in the classroom, dives off the boat. You leave with a card.', b: ['m'] },
+    { n: 'Night dive', t: 'US$55', p: 'Tuesdays and Fridays. Torches provided; the reef is a different place after dark.', b: ['e'] },
+    { n: 'Snorkel trip', t: 'US$30', p: 'Mask, fins and the boat for a morning over the shallows. Good for the whole family.', b: ['m'] }
+  ], BN = { m: 'Morning', a: 'Afternoon', e: 'Evening' };
+  document.getElementById('tripList').innerHTML = TRIPS.map(function (t) {
+    return '<div class="u-card trip"><h3>' + t.n + '<span class="u-tag">' + t.t + '</span></h3><p>' + t.p + '</p>' +
+      ['m', 'a', 'e'].map(function (k) { return '<span class="u-chip ' + (t.b.indexOf(k) > -1 ? 'on' : 'off') + '">' + BN[k] + '</span>'; }).join('') + '</div>';
+  }).join('');
+
+  var DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'], LONG = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };
+  function mins(s) { var a = s.split(':'); return +a[0] * 60 + +a[1]; }
+  function clock(s) { var a = s.split(':'), h = +a[0], ap = h >= 12 ? 'pm' : 'am'; return (h % 12 || 12) + ':' + a[1] + ap; }
+  /* island time is UTC-6 all year (Honduras has no daylight saving) */
+  function islandNow() { var d = new Date(Date.now() - 6 * 3600 * 1000); return { day: DAYS[d.getUTCDay()], m: d.getUTCHours() * 60 + d.getUTCMinutes() }; }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'place_card.json');
+  xhr.onload = function () {
+    var card; try { card = JSON.parse(xhr.responseText); } catch (e) { return; }
+    var now = islandNow(), today = card.hours[now.day], open = false, rows = '';
+    if (today && today !== 'closed') { var r = today.split('-'); open = now.m >= mins(r[0]) && now.m < mins(r[1]); }
+    ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(function (d) {
+      var v = card.hours[d], txt = v === 'closed' ? 'Closed' : clock(v.split('-')[0]) + ' – ' + clock(v.split('-')[1]);
+      rows += '<tr class="' + (d === now.day ? 'today' : '') + '"><td>' + LONG[d] + '</td><td>' + txt + '</td></tr>';
+    });
+    document.getElementById('hrs').innerHTML = rows;
+    ['open', 'signpill'].forEach(function (id) {
+      var el = document.getElementById(id); el.textContent = open ? 'Open now' : 'Closed now'; el.className = 'u-pill' + (open ? '' : ' closed');
+    });
+    var wk = card.hours.mon;
+    document.getElementById('signhrs').textContent = clock(wk.split('-')[0]) + ' – ' + clock(wk.split('-')[1]);
+    document.getElementById('signdays').textContent = 'Mon – Sat · Sun ' + clock(card.hours.sun.split('-')[0]).replace(':00', '') + '–' + clock(card.hours.sun.split('-')[1]).replace(':00', '');
+  };
+  xhr.send();
+})();
+</script>
+</body>
+</html>

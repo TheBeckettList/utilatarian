@@ -70,6 +70,10 @@ not embedded media. **Every place gets its own palette** — Josie's keeps hers,
 `ink`, `paper`, `accent`, `accent-ink`, `soft` (+ a dark variant), so any app can tint a place's card in
 the place's colors while the surrounding app stays in its own.
 
+**The shared art kit lives in [`art/`](art/README.md)**: one palette file, generated tokens and components, and
+an ES5 SVG prop library, all derived from Josie's (the finished reference). Tripwrights and the sample shop
+[`places/utila-dives/`](places/utila-dives/) are drawn with it. Regenerate with `node tools/build-art.mjs`.
+
 ## Accounts
 
 - **Now (testing): no login.** A trip is saved in the device and shareable as a link.
