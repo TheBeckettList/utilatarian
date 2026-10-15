@@ -53,7 +53,9 @@ see `PC` in `places/paradise/map.js` and `TC` in `Tripwrights/rig.js`. `kit.js` 
 - `world.js`: **everything outside a building, in the same hand** (needs `josie.js`): sea, shore bands, cliffs, reefs, piers, life rings,
   the dive flag, pennants and empty plots, **one hull for every boat** (`J.boat(p, 'dive' | 'catamaran' | 'panga' | 'longtail', c)`),
   the bubble helicopter, float plane, helipad, the globe on its stand, container cabins, crates, lanterns, string lights, lighthouse,
-  island houses, and `J.mini.<place>`: each real place's simplified self for island overviews (`josies`, `paradise`).
+  island houses, **the adventure yacht** (`J.yacht(p, c, 'caribbean' | 'seasia')`, one per region, every deck station a
+  tappable activity), home comforts (rug, armchair, bookshelf, hearth, surfboard, telescope, a sleeping cat), beach life (crab,
+  turtle, pelican, windsock, kayaks, loungers), place pins, and `J.mini.<place>`: each real place's simplified self for island overviews (`josies`, `paradise`).
   Paradise's map and Tripwrights' rig and island maps are both drawn from it, so a boat, a pier or a tank looks the same everywhere.
 - `josie.js`: **the universe kit.** Josie's drawing idioms lifted from her design board (oblique room view: tops plus front faces, wainscoted back walls, plank and brick floors, plum shadows, front-on plants, chairs, lamps, gear). Everything new is drawn with it so Josie's, Paradise and Tripwrights are one game.
 - `icons.js` + `icons.html`: icon tiles in Josie's manner (dive gear, tanks, boat fuel gauge, beds, keys, bell, ...), with status badges (`ok` check, `low` !, `alert` !!, `busy` ...). `UART.icon('tankFull', { p: palette, status: 'ok' })`.
