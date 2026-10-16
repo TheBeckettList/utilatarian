@@ -179,7 +179,7 @@
 
   /* ---- expedition vessels: 100 m explorer ships, one per region, big enough to walk around ----
      Bow up, around (0,0), ~400 wide and ~1100 long. Two kinds, after real explorer yachts:
-       'cat'    an explorer catamaran (like The Beast): two plumb-bowed hulls in dazzle stripes, a wide bridge deck, a sportfisher aft;
+       'cat'    the Caribbean's ferry (after the Utila Dream): an orange-and-white passenger catamaran, saloon and snack bar, dive deck aft;
        'shadow' a yacht-support ship: plumb bow, superstructure forward, a long working deck aft with a crane, tenders, a sub.
      The superstructure's aft end is cut away (Josie's way) to show the cabins and the dining room. c = the region's colors.
      Returns { base, parts }: parts are the stations a guest can tap (rest, sail, dive, eat, stay, water, fish),
@@ -199,34 +199,78 @@
     return { room: J.room(x, y, wd, ht, 'url(#' + p + '-white)', { wall: '#FFFFFF', wallEdge: C.postEdge }) + r(mid - 4, y, 8, ht, '#FFFFFF'),
       stay: J.bed(x + 14, y + 16, wd / 2 - 70, ht - 44, c.accent) + J.bed(x + wd / 2 - 52, y + 16, 40, ht - 44, c.soft) + J.lamp(x + wd / 2 - 70, y, 10), eat: J.table(mid + 20, y + 22, wd / 2 - 40, ht - 66, { noPot: true }) + J.chair(mid + 40, y + ht - 34, c.soft, '#FFFFFF') + J.chair(mid + wd / 4, y + ht - 34, c.accent, c.soft) + J.chair(x + wd - 40, y + ht - 34, c.soft, '#FFFFFF') + J.pot(mid + wd / 4 + 6, y + 40) + J.lamp(mid + wd / 4, y, 10) };
   }
+  /* ferry pieces: an orange hull (pale waterline, white sheer line, white deck), a life-raft canister, a backpack, a sailing dinghy, a paddleboard */
+  function fHull(p, x, d, OR, OD) {
+    var t = 'translate(' + x + ',-20)';
+    return '<path d="' + d + '" transform="translate(' + x + ',0) scale(1.09,1.004)" fill="#FCEBD8"/><path d="' + d + '" transform="translate(' + x + ',-8)" fill="' + OD + '"/>' +
+      '<path d="' + d + '" transform="' + t + '" fill="' + OR + '"/><path d="' + d + '" transform="' + t + ' scale(.52,.975)" fill="#FFFFFF"/><path d="' + d + '" transform="' + t + ' scale(.42,.955)" fill="url(#' + p + '-whiteV)"/>';
+  }
+  function raft(x, y, OR, OD) { return r(x, y + 5, 40, 22, OD, 11) + r(x, y, 40, 22, OR, 11) + r(x + 12, y, 4, 22, '#FFFFFF', 0, ' opacity=".8"') + r(x + 24, y, 4, 22, '#FFFFFF', 0, ' opacity=".8"') + r(x + 4, y + 4, 32, 4, '#FFFFFF', 2, ' opacity=".3"'); }
+  function pack(x, y, col) { return r(x, y, 22, 24, col, 8) + r(x + 3, y + 1, 16, 9, '#FFFFFF', 4, ' opacity=".3"') + r(x + 6, y + 14, 10, 6, C.gear, 2, ' opacity=".35"'); }
+  function dinghy(p, x, y, col, sail) {
+    var d = hullPath(30, 76);
+    return r(x - 38, y - 42, 76, 8, C.woodDark, 3) + r(x - 38, y + 34, 76, 8, C.woodDark, 3) + J.shadow(x + 6, y + 8, 34, 76, .14) +
+      '<g transform="translate(' + x + ',' + y + ')"><path d="' + d + '" fill="#FFFFFF"/><path d="' + d + '" fill="' + col + '" transform="scale(.82,.95)"/><path d="' + d + '" fill="url(#' + p + '-whiteV)" transform="scale(.64,.88)"/>' +
+      r(-3, 70, 6, 16, C.woodDark, 2) + r(-14, 4, 28, 6, C.wood, 3) + '<path d="M0,-34 Q36,4 12,60 Q8,6 0,-34Z" fill="#FFFFFF"/><path d="M0,-34 Q36,4 12,60" stroke="' + sail + '" stroke-width="4" fill="none"/>' + r(-2, -34, 4, 92, C.woodDark, 2) + '<circle cy="-34" r="5" fill="' + C.gear + '"/></g>';
+  }
+  function sup(x, y, col, stripe) { return J.shadow(x + 4, y + 6, 16, 48, .14) + e(x, y, 14, 48, col) + r(x - 2, y - 40, 4, 80, stripe, 2, ' opacity=".8"') + r(x - 22, y + 6, 44, 4, C.woodDark, 2) + e(x + 22, y + 8, 4, 8, C.woodDark); }
   J.yacht = function (p, c, kind) {
     var base = '', P = {}, i, h, cut, d;
     if (kind === 'cat') {
-      /* two hulls in dazzle stripes, the net and beanbags between the bows */
-      base += J.shadow(24, 30, 250, 540, .18);
-      [-130, 130].forEach(function (x, k) {
-        d = hullPath(62, 520);
-        base += '<clipPath id="' + p + '-dz' + k + '"><path d="' + d + '" transform="translate(' + x + ',0)"/></clipPath><path d="' + d + '" transform="translate(' + x + ',0)" fill="#E6E8EA"/><g clip-path="url(#' + p + '-dz' + k + ')">';
-        for (i = -9; i < 9; i++) { base += '<path d="M' + (x - 80) + ',' + (i * 64) + ' l160,-70 v34 l-160,70z" fill="' + (i % 3 === 0 ? c.accent : i % 3 === 1 ? '#9AA3AA' : '#FFFFFF') + '"/>'; }
-        base += '</g><path d="' + d + '" transform="translate(' + x + ',4) scale(.66,.95)" fill="' + C.postEdge + '"/><path d="' + d + '" transform="translate(' + x + ',0) scale(.66,.95)" fill="url(#' + p + '-plankV)"/>';
+      /* the Caribbean's ferry, after the Utila Dream: an orange-and-white passenger catamaran (no names, no logos) */
+      var OR = c.ferry || '#F08A24', OD = c.ferryDeep || '#C9650F', W = 'url(#' + p + '-white)';
+      d = hullPath(60, 510);
+      base += J.shadow(26, 34, 236, 540, .18);
+      [-130, 130].forEach(function (x) { base += r(x - 17, 470, 34, 56, C.gear, 11) + r(x - 11, 512, 22, 8, C.gearHi, 4) + r(x - 6, 478, 4, 26, C.gearHi, 2, ' opacity=".6"'); });   /* twin waterjet pods */
+      [-130, 130].forEach(function (x) { base += fHull(p, x, d, OR, OD); });
+      base += J.block(-132, -330, 264, 790, '#FFFFFF', C.postEdge, 20, 24);   /* the bridge deck between the hulls */
+      /* the open foredeck with its bow rail */
+      d = 'M-150,-300 L-150,-404 Q-150,-448 -104,-454 Q0,-472 104,-454 Q150,-448 150,-404 L150,-300Z';
+      base += '<path d="' + d + '" fill="' + C.postEdge + '" transform="translate(0,12)"/><path d="' + d + '" fill="' + W + '"/>' +
+        '<path d="M-140,-330 L-140,-402 Q-140,-438 -100,-444 Q0,-460 100,-444 Q140,-438 140,-402 L140,-330" fill="none" stroke="' + C.postEdge + '" stroke-width="8" stroke-linecap="round" transform="translate(0,4)"/>' +
+        '<path d="M-140,-330 L-140,-402 Q-140,-438 -100,-444 Q0,-460 100,-444 Q140,-438 140,-402 L140,-330" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>' +
+        '<circle cx="-130" cy="-480" r="8" fill="' + C.gear + '"/><circle cx="130" cy="-480" r="8" fill="' + C.gear + '"/>';
+      /* the lower passenger deck: white, rounded windscreen band, rows of dark windows down both sides */
+      base += J.block(-152, -300, 304, 330, '#FFFFFF', C.postEdge, 26, 44) + band(-136, -290, 272, 26);
+      for (i = -248; i < 14; i += 36) { base += r(-148, i, 14, 26, DK, 5) + r(134, i, 14, 26, DK, 5); }
+      /* the upper deck, set back: the wheelhouse's wide window band, an orange trim, life rafts, life rings, the radar mast */
+      base += J.block(-124, -254, 248, 214, '#FFFFFF', C.postEdge, 18, 34) + band(-112, -244, 224, 32) + r(-124, -204, 248, 7, OR, 3);
+      base += raft(-114, -176, OR, OD) + raft(-114, -140, OR, OD) + raft(74, -176, OR, OD) + raft(74, -140, OR, OD) + J.ac(-29, -110) +
+        J.lifeRing(-102, -78) + J.lifeRing(102, -78) + J.lifeRing(-108, 12) + J.lifeRing(108, 12) +
+        r(-4, -190, 8, 46, C.steel, 4) + r(-40, -178, 80, 11, C.gear, 5) + r(-30, -175, 22, 4, C.gearHi, 2) + J.bulb(0, -192, 5);
+      h = J.lounger(-150, -404, OR) + J.lounger(-92, -404, c.pop || '#F2B632') + J.bench(48, -398, 92) + J.bench(48, -350, 92) + J.lifeRing(128, -424, .8);
+      P.rest = { m: h, box: [-156, -470, 312, 176], tag: [0, -330] };
+      /* the saloon's aft end, cut away: bench rows and luggage on one side, the snack bar on the other */
+      base += J.room(-142, 40, 284, 170, 'url(#' + p + '-plank)', { wall: '#FFFFFF', wallEdge: C.postEdge }) + r(-4, 40, 8, 56, '#FFFFFF') + r(-4, 96, 8, 4, C.postEdge);
+      h = J.block(-136, 66, 128, 6, C.wood, C.woodFront, 5, 3);
+      [['#3E86B8', -132, 30], [OR, -100, 36], [C.leafMid, -66, 26], ['#CDBDE6', -38, 28]].forEach(function (s) { h += r(s[1], 66 - s[2], 26, s[2], s[0], 5) + r(s[1] + 8, 62 - s[2], 10, 5, C.gear, 2) + r(s[1] + 3, 70 - s[2], 20, 3, '#FFFFFF', 1, ' opacity=".4"'); });
+      [92, 132, 172].forEach(function (y, k) {
+        h += J.block(-136, y, 112, 16, OR, OD, 6, 5) + r(-99, y, 2, 16, OD) + r(-62, y, 2, 16, OD) + J.block(-136, y + 16, 112, 6, '#FFFFFF', C.postEdge, 6, 3);
+        h += pack(k === 1 ? -132 : -94, y - 8, k === 0 ? '#3E86B8' : k === 1 ? C.leafMid : c.pop || '#F2B632') + (k === 1 ? pack(-56, y - 8, '#CDBDE6') : '');
       });
-      base += r(-150, 140, 300, 300, C.postEdge, 14) + r(-150, 134, 300, 300, 'url(#' + p + '-plank)', 14);   /* aft deck between the hulls */
-      base += J.block(-180, -270, 360, 290, '#FFFFFF', C.postEdge, 26, 40) + band(-166, -256, 332, 38) + J.block(-126, -236, 252, 150, '#F4F6F8', C.postEdge, 16, 30) + band(-114, -226, 228, 26) + mast(0, -150, c);
-      base += r(-180, -6, 360, 10, c.accent, 5);
-      h = r(-70, -470, 140, 190, c.soft, 14, ' opacity=".85"'); for (i = -454; i < -284; i += 18) { h += r(-70, i, 140, 2, '#FFFFFF', 0, ' opacity=".8"'); } for (i = -54; i < 70; i += 18) { h += r(i, -470, 2, 190, '#FFFFFF', 0, ' opacity=".8"'); }
-      h += '<circle cx="-30" cy="-380" r="22" fill="' + c.accent + '"/><circle cx="26" cy="-340" r="22" fill="' + c.pop + '"/><circle cx="-24" cy="-318" r="18" fill="#FFFFFF"/>' + jacuzzi(-130, -330, 40);
-      P.rest = { m: h, box: [-180, -480, 340, 210], tag: [0, -446] };
-      cut = cutaway(p, -170, 24, 340, 100, c); base += cut.room;
-      P.stay = { m: cut.stay, box: [-176, 18, 176, 112], tag: [-88, 150] };
-      P.eat = { m: cut.eat, box: [0, 18, 176, 112], tag: [88, 150] };
-      /* aft deck: the sportfisher, dive gear, the hobie cat */
-      h = J.at(0, 300, 0, 1, J.hull(p, 44, 120, { accent: C.gear }) + J.block(-30, -50, 60, 50, '#FFFFFF', C.postEdge, 10, 10) + band(-24, -44, 48, 16) + '<path d="M-26,40 L-60,-40 M26,40 L60,-40" stroke="' + C.gear + '" stroke-width="3" stroke-linecap="round"/>' + '<circle cy="70" r="12" fill="' + C.gearLt + '"/>');
-      P.fish = { m: h, box: [-60, 170, 120, 260], tag: [0, 456] };
-      h = tankRow(-130, 180, 9, c, true) + J.bcd(-90, 196, C.gear) + J.fins(-90, 330, C.gear, c.accent) + J.mask(-90, 360) + r(-160, 160, 4, 40, C.steel, 2) + J.diveFlag(-156, 160, 0);
-      P.dive = { m: h, box: [-176, 150, 120, 270], tag: [-116, 456] };
-      P.sail = { m: hobie(118, 290, c.accent), box: [60, 150, 120, 270], tag: [118, 456] };
-      h = jetski(-130, 560, c.accent, 0) + jetski(130, 560, c.pop, 0) + J.kayak(-60, 560, 120, c.soft, 0) + J.kayak(60, 560, 120, c.accent, 0);
-      P.water = { m: h, box: [-190, 500, 380, 120], tag: [0, 640] };
+      P.stay = { m: h, box: [-152, 30, 152, 196], tag: [-74, 250] };
+      h = r(14, 42, 72, 46, C.plum, 6) + r(22, 51, 34, 5, OR, 2) + r(22, 62, 44, 4, '#FFFFFF', 2, ' opacity=".75"') + r(22, 71, 38, 4, '#FFFFFF', 2, ' opacity=".75"') + r(22, 80, 30, 4, '#FFFFFF', 2, ' opacity=".75"') +
+        '<circle cx="76" cy="64" r="3" fill="' + (c.pop || '#F2B632') + '"/><circle cx="76" cy="73" r="3" fill="' + (c.pop || '#F2B632') + '"/><circle cx="76" cy="82" r="3" fill="' + (c.pop || '#F2B632') + '"/>' +
+        J.block(94, 40, 44, 50, '#FFFFFF', C.postEdge, 8, 6) + r(100, 46, 32, 38, C.glassDk, 4);
+      for (i = 0; i < 4; i++) { h += r(103 + i * 7, 50, 5, 13, [OR, C.leafMid, c.pop || '#F2B632', '#3E86B8'][i], 2) + r(103 + i * 7, 67, 5, 13, ['#3E86B8', OR, C.leafMid, OR][i], 2); }
+      h += J.counter(10, 104, 126, 40, '#FFFFFF', OR) + r(106, 96, 24, 20, C.gear, 5) + r(111, 100, 14, 6, C.gearHi, 2) + J.bulb(118, 94, 3);
+      [[30, OR], [48, C.leafMid], [66, c.pop || '#F2B632']].forEach(function (q) { h += r(q[0] - 6, 102, 12, 14, q[1], 4) + r(q[0] - 1, 94, 2, 10, '#FFFFFF') + r(q[0] - 4, 104, 8, 3, '#FFFFFF', 1, ' opacity=".5"'); });
+      h += '<circle cx="94" cy="112" r="9" fill="' + C.woodDark + '"/><circle cx="94" cy="110" r="6" fill="' + C.wood + '"/>' + J.stool(32, 158, OD) + J.stool(72, 158, OD) + J.stool(112, 158, OD);
+      P.eat = { m: h, box: [0, 30, 152, 196], tag: [74, 250] };
+      /* the stern deck: white wood, white rails on wood posts */
+      base += J.block(-152, 226, 304, 236, W, C.postEdge, 16, 16) + J.railV(-154, 236, 212) + J.railV(142, 236, 212) + J.railH(-152, 446, 96) + J.railH(56, 446, 96);
+      for (i = 0; i < 5; i++) { base += J.woodPost(-148, 244 + i * 50) + J.woodPost(148, 244 + i * 50); }
+      h = tankRow(-126, 272, 5, { tank: OR, tank2: '#F2F2EE' }, true) + J.bcd(-86, 262, C.gear) + J.fins(-84, 376, '#3E86B8', OR) + J.mask(-84, 396) + r(-150, 380, 4, 52, C.steel, 2) + J.diveFlag(-184, 380, 0);
+      P.dive = { m: h, box: [-190, 228, 140, 224], tag: [-104, 444] };
+      P.sail = { m: dinghy(p, 0, 326, OR, c.pop || '#F2B632'), box: [-46, 236, 92, 216], tag: [0, 444] };
+      h = J.block(70, 292, 58, 34, '#FFFFFF', C.postEdge, 10, 6) + r(70, 292, 58, 11, OR, 5) + '<path d="M84,312 q14,-10 28,0 q-14,10 -28,0z M112,312 l8,-6 v12z" fill="#7FB8D6"/>' +
+        J.block(80, 360, 44, 24, '#3E86B8', '#2C6A94', 8, 5) + r(96, 356, 12, 6, C.gear, 2) + e(98, 402, 16, 12, C.steel) + e(98, 400, 12, 8, C.water);
+      for (i = 0; i < 4; i++) { var ry = 266 + i * 46; h += '<path d="M146,' + ry + ' L236,' + (ry - 64) + '" stroke="' + C.gear + '" stroke-width="3.5" stroke-linecap="round"/><path d="M236,' + (ry - 64) + ' q10,40 -4,70" stroke="#FFFFFF" stroke-width="1.4" fill="none" opacity=".7"/><circle cx="146" cy="' + ry + '" r="6" fill="' + C.gearLt + '"/><circle cx="156" cy="' + (ry - 8) + '" r="5" fill="' + C.steelLt + '"/>'; }
+      P.fish = { m: h, box: [52, 228, 190, 224], tag: [104, 444] };
+      /* the boarding platform and steps; kayaks and paddleboards tied off astern */
+      h = J.block(-44, 456, 88, 8, '#FFFFFF', C.postEdge, 5, 3) + J.block(-44, 466, 88, 8, '#FFFFFF', C.postEdge, 5, 3) + J.block(-74, 478, 148, 30, 'url(#' + p + '-plank)', C.woodFront, 10, 8) + J.mask(0, 492);
+      h += J.kayak(-162, 566, 96, OR, 0) + sup(-94, 566, '#FFFFFF', OR) + sup(94, 566, c.pop || '#F2B632', '#FFFFFF') + J.kayak(162, 566, 96, c.soft || '#F5B8A8', 0);
+      P.water = { m: h, box: [-200, 452, 400, 172], tag: [0, 652] };
       return { base: base, parts: P };
     }
     /* 'shadow': a yacht-support ship */

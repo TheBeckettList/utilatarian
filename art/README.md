@@ -53,7 +53,7 @@ see `PC` in `places/paradise/map.js` and `TC` in `Tripwrights/rig.js`. `kit.js` 
 - `world.js`: **everything outside a building, in the same hand** (needs `josie.js`): sea, shore bands, cliffs, reefs, piers, life rings,
   the dive flag, pennants and empty plots, **one hull for every boat** (`J.boat(p, 'dive' | 'catamaran' | 'panga' | 'longtail', c)`),
   the bubble helicopter, float plane, helipad, the globe on its stand, container cabins, crates, lanterns, string lights, lighthouse,
-  island houses, **the 100 m expedition vessels** (`J.yacht(p, c, 'cat' | 'shadow')`: an explorer catamaran in dazzle stripes, a yacht-support ship with a crane and a sub; every deck station a
+  island houses, **the 100 m expedition vessels** (`J.yacht(p, c, 'cat' | 'shadow')`: an orange-and-white passenger catamaran after the Utila ferry, a yacht-support ship with a crane and a sub; every deck station a
   tappable activity), the medevac helicopter and pad (`J.medic`, `J.medpad`), home comforts (rug, armchair, bookshelf, hearth, surfboard, telescope, a sleeping cat), beach life (crab,
   turtle, pelican, windsock, kayaks, loungers), place pins, and `J.mini.<place>`: each real place's simplified self for island overviews (`josies`, `paradise`).
   Paradise's map and Tripwrights' rig and island maps are both drawn from it, so a boat, a pier or a tank looks the same everywhere.
