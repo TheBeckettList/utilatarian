@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level board</title>
+<!-- The level design guide, drawn. Rules in ../docs/level-design.md. Everything here is drawn with josie.js + world.js
+     (the table pots are Josie's own map icons, copied from josiescafe/art/art.js so they match exactly). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+  :root {
+    --ink: #5B3843; --ink2: #86606B; --paper: #FFF6F2; --card: #FFFFFF; --accent: #B55573; --soft: #F5B5C8; --wash: #FDEDF1;
+    --line: #EADFD5; --ledge: #F2D9DF;
+    --ok: #D9F0E8; --ok-ink: #2F6B58; --low: #FBEBC5; --low-ink: #8A5C00; --alert: #F9D6D6; --alert-ink: #8E2F3F; --busy: #EEE7EA; --busy-ink: #6E5560;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 600 15px/1.45 'Nunito', sans-serif; }
+  h1, h2, h3, .num { font-family: 'Baloo 2', 'Nunito', sans-serif; font-weight: 800; margin: 0; }
+  h1 { font-size: 30px; color: var(--accent); }
+  h2 { font-size: 26px; margin: 0 0 4px; }
+  h3 { font-size: 18px; }
+  .sub { color: var(--ink2); margin: 0 0 18px; max-width: 760px; }
+  header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--card); box-shadow: 0 2px 0 var(--line); flex-wrap: wrap; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: var(--wash); border-radius: 999px; margin: 0 auto; flex-wrap: wrap; }
+  .seg a { padding: 7px 16px; border-radius: 999px; color: var(--ink2); text-decoration: none; font-family: 'Baloo 2'; font-weight: 800; font-size: 15px; }
+  .seg a:hover { background: var(--card); color: var(--ink); box-shadow: 0 3px 0 var(--ledge); }
+  main { max-width: 1200px; margin: 0 auto; padding: 28px 16px 60px; }
+  section { margin: 0 0 48px; }
+  .card { background: var(--card); border-radius: 26px; box-shadow: 0 5px 0 var(--ledge); padding: 18px; }
+  .grid { display: grid; gap: 16px; }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 860px) { .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g2 { grid-template-columns: 1fr; } }
+  svg { display: block; width: 100%; height: auto; }
+  .step { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .badge { width: 34px; height: 34px; border-radius: 50%; background: var(--wash); color: var(--accent); display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; box-shadow: 0 3px 0 var(--ledge); flex: none; }
+  .who { color: var(--ink2); font-size: 13px; }
+  .scene { border-radius: 18px; overflow: hidden; background: #F6DCC0; }
+  .prompts { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .prompts li { background: var(--wash); border-radius: 12px; padding: 6px 10px; font: 700 13px/1.35 ui-monospace, 'SF Mono', Menlo, monospace; color: var(--ink); }
+  .prompts b { color: var(--accent); }
+  .note { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; }
+  .note dt { font-family: 'Baloo 2'; font-weight: 800; color: var(--accent); }
+  .note dd { margin: 0; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px 3px 4px; border-radius: 999px; font-weight: 800; font-size: 13px; }
+  .pill i { width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF; display: grid; place-items: center; font-style: normal; font-size: 12px; }
+  .ok { background: var(--ok); color: var(--ok-ink); } .low { background: var(--low); color: var(--low-ink); }
+  .alert { background: var(--alert); color: var(--alert-ink); } .busy { background: var(--busy); color: var(--busy-ink); }
+  .plain { background: var(--wash); color: var(--ink2); padding: 3px 11px; }
+  .ladder { margin-bottom: 18px; }
+  .ladder-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px 4px; flex-wrap: wrap; }
+  .ladder-head .who { margin-left: auto; }
+  .rung { background: var(--card); border-radius: 22px; box-shadow: 0 5px 0 var(--ledge); padding: 8px 10px 12px; text-align: center; }
+  .rung.empty { background: transparent; box-shadow: none; border: 2px dashed var(--line); display: grid; place-items: center; color: var(--ink2); font-size: 13px; min-height: 120px; }
+  .rung .cap { font-family: 'Baloo 2'; font-weight: 800; font-size: 15px; margin: 4px 0 6px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; color: var(--ink2); background: var(--wash); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 2px; }
+  .do, .dont { font-family: 'Baloo 2'; font-weight: 800; font-size: 17px; display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .do { color: var(--ok-ink); } .dont { color: var(--alert-ink); }
+  ul.rules { margin: 8px 0 0; padding-left: 20px; } ul.rules li { margin: 4px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td, th { text-align: left; padding: 7px 8px; border-bottom: 2px dashed var(--line); vertical-align: top; }
+  th { font-family: 'Baloo 2'; font-weight: 800; color: var(--ink2); font-size: 13px; }
+  .score { font-family: 'Baloo 2'; font-weight: 800; font-size: 22px; color: var(--ok-ink); }
+  .verbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .verb { background: var(--accent); color: #FFFFFF; border-radius: 999px; padding: 6px 14px; font-family: 'Baloo 2'; font-weight: 800; box-shadow: 0 3px 0 #8E3F57; }
+  .verb.pd { background: #3E86B8; box-shadow: 0 3px 0 #2B5F86; }
+  .role { padding: 10px 0; border-bottom: 2px dashed var(--line); } .role:last-child { border: 0; }
+  .laws { counter-reset: law; display: grid; gap: 12px; }
+  .law { display: flex; gap: 14px; align-items: flex-start; }
+  .law::before { counter-increment: law; content: counter(law); flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #FFF; display: grid; place-items: center; font: 800 20px 'Baloo 2'; box-shadow: 0 3px 0 #8E3F57; }
+  .pulse { animation: pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Level board</h1>
+  <nav class="seg">
+    <a href="#laws">Laws</a><a href="#build">Build a level</a><a href="#ladders">Objects grow</a><a href="#bubbles">Bubbles</a><a href="#ledger">2-for-1</a>
+  </nav>
+  <span class="who">Rules: docs/level-design.md</span>
+</header>
+<main>
+
+<section id="laws">
+  <h2>The three laws</h2>
+  <p class="sub">Every place is a level of the same game Josie's already is. Break one of these and the level does not ship.</p>
+  <div class="card laws">
+    <div class="law"><div><h3>2-for-1</h3>A step added in the OS must remove at least two steps in real life. Every spec carries a step ledger.</div></div>
+    <div class="law"><div><h3>Done is a state of the world</h3>Things finish when the real thing happens: the stick comes back, the bag is handed over, the boat leaves. No Ready, Done or Submit buttons.</div></div>
+    <div class="law"><div><h3>Score the place, never the person</h3>Waits, stock and busy times per station and per day. No per-person timers, ranks or streaks, ever.</div></div>
+  </div>
+</section>
+
+<section id="build">
+  <h2>Build a level: photos, blocks, art pass</h2>
+  <p class="sub">A level is assembled from preset blocks that take the shape of the real place, then reshaped by a local designer to how it feels. Josie's is the precedent: the neighbor's business on the lot and the bathrooms were cut, the tree and the beach got the room.</p>
+  <div class="grid g4">
+    <div class="card"><div class="step"><span class="badge">A</span><div><h3>Capture</h3><span class="who">owner · under 15 min</span></div></div><div class="scene" id="sA"></div>
+      <p>Photos from the door, each station and the water side, or one slow walk-through video. The satellite pin is pulled for them.</p></div>
+    <div class="card"><div class="step"><span class="badge">B</span><div><h3>Block out</h3><span class="who">AI · preset blocks</span></div></div><div class="scene" id="sB"></div>
+      <p>Blocks snap to what the photos show: footprint, the sea's side, stations, seats. Each block brings its game with it (a seat brings the pot ladder).</p></div>
+    <div class="card"><div class="step"><span class="badge">C</span><div><h3>Art pass</h3><span class="who">local designer · prompts</span></div></div><div class="scene" id="sC"></div>
+      <ul class="prompts">
+        <li><b>cut</b> the bathrooms and the other business on the lot</li>
+        <li><b>keep</b> the big tree; <b>enlarge</b> it 1.3x</li>
+        <li><b>simplify</b> the patio to three umbrellas</li>
+        <li><b>add life</b>: crabs by the rocks</li>
+      </ul></div>
+    <div class="card"><div class="step"><span class="badge">D</span><div><h3>Sign off</h3><span class="who">owner + crew</span></div></div>
+      <dl class="note">
+        <dt>Cut</dt><dd>the neighbor's business on the lot, the bathrooms</dd>
+        <dt>Kept</dt><dd>sign, counter, tree, beach and rocks, deck</dd>
+        <dt>Moved</dt><dd>nothing; order and the sea's side unchanged</dd>
+        <dt>Enlarged</dt><dd>the tree, the iguana</dd>
+        <dt>Stand-ins</dt><dd>none</dd>
+      </dl>
+      <p style="margin-top:14px"><span class="pill ok"><i>✓</i>Feels like my place</span><br><span class="pill ok" style="margin-top:6px"><i>✓</i>I can find my station</span></p>
+      <p class="who">Reshape note for Josie's, written after the fact. Owner to confirm.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Reshape rules (the designer's guide)</h3>
+    <ul class="rules">
+      <li><b>Cut what nobody in the game tends:</b> bathrooms, storage, parking, a neighbor's business. Keep it if a role works there (a tank room, a hostel's bathrooms for housekeeping).</li>
+      <li><b>Keep what you'd point at:</b> the counter, the sign, the tree, the dock, the view.</li>
+      <li><b>Compress distance, keep order:</b> walls move, adjacency and direction don't. The sea stays on its side.</li>
+      <li><b>Enlarge the soul, shrink the generic:</b> the signature up to about 1.5x.</li>
+      <li><b>Three of anything,</b> unless the count is the job (tanks, stock).</li>
+      <li><b>Never add what isn't there.</b> A missing piece is a labeled stand-in.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="ladders">
+  <h2>Objects grow</h2>
+  <p class="sub">Every object someone tends has a state ladder of four rungs at most. The drawing changes, not a label. Only the last rung is loud, and it pulses only when there is a deadline. Always an icon or a word too, never color alone.</p>
+  <div id="ladders-out"></div>
+</section>
+
+<section id="bubbles">
+  <h2>Bubbles</h2>
+  <p class="sub">All words on a map live in bubbles anchored to their object: a white circle on a ledge, the object inside, a small pill under it. Two words and a number at most, only for the role that can act, timed to the quiet moment, and gone by itself when the world changes.</p>
+  <div class="grid g2">
+    <div class="card"><div class="dont">✕ Free text on the map</div><div class="scene" id="dont"></div>
+      <p>Outlined names floating over the water read as a web page, not a place (today's Tripwrights region map).</p></div>
+    <div class="card"><div class="do">✓ Anchored pill bubbles</div><div class="scene" id="do"></div>
+      <p>The name sits in a pill on the island's pin; places live in their own color. "Soon" is a busy pill, not red text.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="grid g2" style="align-items:center">
+    <div id="anatomy"></div>
+    <div>
+      <h3>Anatomy</h3>
+      <ul class="rules">
+        <li><b>Ring:</b> none when calm, amber when low, rose when it needs a person. Dashed while it is a question ("How's the coffee?").</li>
+        <li><b>Ledge:</b> a darker circle 4px under the white one, like every Josie card.</li>
+        <li><b>Inside:</b> the object itself, drawn with the kit, never an emoji.</li>
+        <li><b>Pill:</b> two words and a number at most, with its mark: ✓ ok, ! low, !! alert, … busy. Here: twelve tanks needed by the 1:30 boat.</li>
+        <li><b>Pulse:</b> only for a deadline. One loud thing on screen at a time.</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<section id="ledger">
+  <h2>2-for-1, made checkable</h2>
+  <p class="sub">Every spec adds a step ledger. Reading is free; a tap that writes costs one step. A step moved to someone else still counts. Guest effort is only paid by guest savings.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Step ledger: stock check (Josie's, live)</h3>
+      <table>
+        <tr><th>Real life before</th><th>OS</th></tr>
+        <tr><td>1 notice the beans are low<br><s>2 find Josie</s><br><s>3 tell her</s><br><s>4 she checks the shelf</s><br><s>5 she writes it down</s></td>
+            <td>1 tap <span class="pill low"><i>!</i>Low</span> on the grinder bubble, shown when the bar is quiet</td></tr>
+      </table>
+      <p><span class="score">+1 −4</span> &nbsp;passes (needs −2 or better). The barista pays one tap and never leaves the bar.</p>
+    </div>
+    <div class="card">
+      <h3>Three verbs per role, one tap each</h3>
+      <div class="role"><b>Josie's register</b><div class="verbs"><span class="verb">Pay</span><span class="verb">Stick back</span><span class="verb">Picked up</span></div></div>
+      <div class="role"><b>Paradise tank filler</b><div class="verbs"><span class="verb pd">I'm on it</span><span class="verb pd">Done</span><span class="verb pd">Low</span></div></div>
+      <div class="role"><b>Paradise divemaster</b><div class="verbs"><span class="verb pd">Ask for tanks</span><span class="verb pd">Fuel</span><span class="verb pd">Boat out</span></div></div>
+      <div class="role"><b>Kitchen phone</b><div class="verbs"><span class="pill plain">scroll only, nothing to mark</span></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="josie.js"></script>
+<script src="world.js"></script>
+<script>
+(function () {
+  'use strict';
+  var J = window.UJ, C = J.C, r = J.r, e = J.e;
+  var PINK = { accent: '#B55573', soft: '#F5B5C8', wallTop: '#F5B5C8', shutter: '#5FB3A6', wainscot: '#F7D3DD', wainscotLine: '#EFBFCD',
+    wallCream: '#FFF6F2', wallBase: '#EFD9C4', brickBase: '#EAD3C4', brick: '#F1E0D4', wall: '#FFFFFF', wallEdge: '#EADFD5' };
+  var BLUE = { accent: '#3E86B8', deep: '#2E6E9E', soft: '#BFE0F2', pale: '#E6F2FA' };
+  var TONE = { calm: null, low: '#F2B632', alert: '#D9617E', ask: '#B55573' };
+  var MARK = { ok: '✓', low: '!', alert: '!!', busy: '…' };
+
+  /* Josie's own map icons (josiescafe/art/art.js, menu.*), viewBox 0 0 48 58 */
+  var POT = {
+    free: '<rect x="9" y="38" width="30" height="6" rx="2" fill="#f2a477"/><path d="M11 44 L37 44 L34 57 L14 57 Z" fill="#fbae7a"/><ellipse cx="24" cy="39" rx="12" ry="2.5" fill="#6b4130"/>',
+    ordered: '<path d="M24 40 L24 22" stroke="#6f9a6b" stroke-width="3" stroke-linecap="round"/><path d="M24 30 C18 30 13 26 12 20 C18 20 23 24 24 30 Z" fill="#8fb98b"/><path d="M24 26 C30 26 35 22 36 16 C30 16 25 20 24 26 Z" fill="#8fb98b"/><rect x="9" y="38" width="30" height="6" rx="2" fill="#f2a477"/><path d="M11 44 L37 44 L34 57 L14 57 Z" fill="#fbae7a"/>',
+    ready: '<path d="M24 40 L24 18" stroke="#6f9a6b" stroke-width="3" stroke-linecap="round"/><path d="M24 32 C18 32 13 28 12 22 C18 22 23 26 24 32 Z" fill="#8fb98b"/><path d="M24 30 C30 30 35 26 36 20 C30 20 25 24 24 30 Z" fill="#8fb98b"/><circle cx="24" cy="6" r="6" fill="#F5B5C8"/><circle cx="33" cy="12" r="6" fill="#F5B5C8"/><circle cx="30" cy="22" r="6" fill="#F5B5C8"/><circle cx="18" cy="22" r="6" fill="#F5B5C8"/><circle cx="15" cy="12" r="6" fill="#F5B5C8"/><circle cx="24" cy="15" r="5" fill="#fff1c9"/><rect x="9" y="38" width="30" height="6" rx="2" fill="#f2a477"/><path d="M11 44 L37 44 L34 57 L14 57 Z" fill="#fbae7a"/>',
+    wilt: '<path d="M24 40 C24 30 26 24 32 22" stroke="#9c9a6b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M30 23 C34 26 36 31 35 36 C31 33 29 28 30 23 Z" fill="#c9b98a"/><path d="M25 31 C20 32 15 35 14 40 C19 39 23 36 25 31 Z" fill="#c9b98a"/><rect x="9" y="38" width="30" height="6" rx="2" fill="#f2a477"/><path d="M11 44 L37 44 L34 57 L14 57 Z" fill="#fbae7a"/>'
+  };
+
+  function svg(vb, inner, label) { return '<svg viewBox="' + vb + '" role="img" aria-label="' + (label || '') + '">' + inner + '</svg>'; }
+  function txt(x, y, s, size, col, anchor, weight) { return '<text x="' + x + '" y="' + y + '" font-family="Baloo 2, Nunito, sans-serif" font-weight="' + (weight || 800) + '" font-size="' + size + '" fill="' + col + '" text-anchor="' + (anchor || 'middle') + '">' + s + '</text>'; }
+  /* a small pill with a mark, drawn in svg (for pills that sit on a map) */
+  function mapPill(cx, cy, word, kind) {
+    var bg = { ok: '#D9F0E8', low: '#FBEBC5', alert: '#F9D6D6', busy: '#EEE7EA', plain: '#FFFFFF' }[kind || 'plain'];
+    var ink = { ok: '#2F6B58', low: '#8A5C00', alert: '#8E2F3F', busy: '#6E5560', plain: '#5B3843' }[kind || 'plain'];
+    var m = MARK[kind] ? MARK[kind] + ' ' : '', w = (m + word).length * 7.4 + 18;
+    return r(cx - w / 2, cy - 11 + 3, w, 22, '#EADFD5', 11) + r(cx - w / 2, cy - 11, w, 22, bg, 11) + txt(cx, cy + 5, m + word, 13, ink);
+  }
+  /* the bubble: white circle on a ledge, optional ring, object inside, pill under */
+  function bubble(cx, cy, rad, inner, ring, dashed, pulse) {
+    var h = '<circle cx="' + cx + '" cy="' + (cy + 4) + '" r="' + rad + '" fill="#F2D9DF"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rad + '" fill="#FFFFFF"/>';
+    if (ring) { h += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rad - 2.5) + '" fill="none" stroke="' + ring + '" stroke-width="5"' + (dashed ? ' stroke-dasharray="7 6"' : '') + (pulse ? ' class="pulse"' : '') + '/>'; }
+    return h + inner;
+  }
+  /* place a drawing made in a 48x58 box (Josie's icons) at x, y, scaled to height ht */
+  function nest(x, y, wd, ht, vb, inner) { var k = ht / 58; return '<g transform="translate(' + x + ',' + y + ') scale(' + k.toFixed(3) + ')">' + inner + '</g>'; }
+
+  /* ---------- objects drawn for the ladders ---------- */
+  function jar(cx, by, level, col) {
+    var h = J.shadow(cx, by + 3, 26, 5), top = by - 64, fillH = 52 * level;
+    h += r(cx - 24, top, 48, 64, '#E4F3F7', 12) + (level > 0 ? r(cx - 20, by - 6 - fillH, 40, fillH, col, 8) : '');
+    if (level > 0) { for (var i = 0; i < Math.round(level * 5); i++) { h += e(cx - 10 + (i % 3) * 10, by - 14 - i * 9, 4, 2.6, '#8C5A3C'); } }
+    return h + r(cx - 16, top + 6, 6, 40, '#FFFFFF', 3, ' opacity=".6"') + J.block(cx - 26, top - 10, 52, 8, '#86606B', '#5B3843', 5, 4);
+  }
+  function gauge(cx, cy, frac) {
+    var R = 40, seg = [['#7CC9A2', 0, .45], ['#F2B632', .45, .75], ['#D9617E', .75, 1]], h = '', i;
+    function pt(t) { var a = Math.PI + t * Math.PI; return [cx + Math.cos(a) * R, cy + Math.sin(a) * R]; }
+    for (i = 0; i < 3; i++) { var a0 = pt(seg[i][1]), a1 = pt(seg[i][2]); h += '<path d="M' + a0[0].toFixed(1) + ',' + a0[1].toFixed(1) + ' A' + R + ',' + R + ' 0 0 1 ' + a1[0].toFixed(1) + ',' + a1[1].toFixed(1) + '" stroke="' + seg[i][0] + '" stroke-width="12" fill="none"/>'; }
+    var n = pt(1 - frac);
+    return J.block(cx - 54, cy - 54, 108, 70, '#FFFFFF', '#E3E7EA', 10, 14) + h + '<path d="M' + cx + ',' + cy + ' L' + n[0].toFixed(1) + ',' + n[1].toFixed(1) + '" stroke="#5B3843" stroke-width="5" stroke-linecap="round"/><circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#5B3843"/>';
+  }
+  function backpack(x, y) { return J.shadow(x + 12, y + 34, 14, 4) + r(x, y, 24, 32, '#E8895C', 9) + r(x + 4, y + 16, 16, 12, '#F2A477', 5) + r(x + 7, y - 5, 10, 8, '#B9663F', 4); }
+  function seats(n, of, kind) {
+    var h = J.block(18, 70, 124, 18, '#FBFAF7', '#3E86B8', 10, 8), i;
+    for (i = 0; i < of; i++) { var cx = 40 + i * 40; h += i < n ? (J.shadow(cx, 66, 14, 3) + '<circle cx="' + cx + '" cy="50" r="13" fill="#2E3238"/><circle cx="' + cx + '" cy="46" r="7" fill="#F2C9A5"/><rect x="' + (cx - 8) + '" y="44" width="16" height="5" rx="2.5" fill="#3E86B8"/>') : '<circle cx="' + cx + '" cy="50" r="13" fill="none" stroke="#BFE0F2" stroke-width="3" stroke-dasharray="5 4"/>'; }
+    return h;
+  }
+  function block(state) {
+    var x = 20, y = 46, w = 120, h = 40, s = '';
+    if (state === 'empty') { s = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="20" fill="none" stroke="#CFDCE5" stroke-width="3" stroke-dasharray="7 6"/>'; }
+    if (state === 'planned') { s = r(x, y + 4, w, h, '#A9CFE3', 20) + r(x, y, w, h, '#D8E9F2', 20) + '<circle cx="' + (x + 22) + '" cy="' + (y + 20) + '" r="10" fill="#B55573"/>' + r(x + 40, y + 15, 60, 10, '#A9CFE3', 5); }
+    if (state === 'booked') { s = r(x, y + 4, w, h, '#12405F', 20) + r(x, y, w, h, '#1F5F8B', 20) + '<circle cx="' + (x + 22) + '" cy="' + (y + 20) + '" r="10" fill="#F5B5C8"/>' + r(x + 40, y + 15, 50, 10, '#A9CFE3', 5) + '<circle cx="' + (x + 102) + '" cy="' + (y + 20) + '" r="10" fill="#FFFFFF"/><path d="M' + (x + 97) + ',' + (y + 20) + ' l4,4 l7,-8" stroke="#1F5F8B" stroke-width="3" fill="none" stroke-linecap="round"/>'; }
+    if (state === 'clash') { s = r(x, y + 4, w, h, '#A9CFE3', 20) + r(x, y, w, h, '#D8E9F2', 20) + '<rect x="' + (x - 3) + '" y="' + (y - 3) + '" width="' + (w + 6) + '" height="' + (h + 6) + '" rx="23" fill="none" stroke="#D9617E" stroke-width="5"/>' + '<circle cx="' + (x + 22) + '" cy="' + (y + 20) + '" r="10" fill="#B55573"/>' + '<path d="M' + (x + 104) + ',' + (y + 10) + ' a10,10 0 1 0 6,16 a8,8 0 1 1 -6,-16z" fill="#5B3843"/>'; }
+    return s;
+  }
+
+  var V = '0 0 160 130';
+  var LADDERS = [
+    { name: 'Table', where: "Josie's · live", who: 'floor, register', rungs: [
+      ['Free', null, bubble(80, 58, 44, nest(58, 30, 44, 53, '0 0 48 58', POT.free))],
+      ['Ordered', 'busy', bubble(80, 58, 44, nest(58, 30, 44, 53, '0 0 48 58', POT.ordered))],
+      ['Food out', 'ok', bubble(80, 58, 44, nest(58, 30, 44, 53, '0 0 48 58', POT.ready))],
+      ['Waiting 15+ min', 'alert', bubble(80, 58, 44, nest(58, 30, 44, 53, '0 0 48 58', POT.wilt), TONE.alert, false, true)]] },
+    { name: 'Stock jar', where: "Josie's · live", who: 'bar, Josie', rungs: [
+      ['Plenty', 'ok', jar(80, 112, 1, '#6B4130')], ['Half', null, jar(80, 112, .55, '#6B4130')],
+      ['Low', 'low', bubble(80, 66, 54, '<g transform="translate(32,10) scale(.6)">' + jar(80, 112, .2, '#6B4130') + '</g>', TONE.low)],
+      ['Out', 'alert', bubble(80, 66, 54, '<g transform="translate(32,10) scale(.6)">' + jar(80, 112, 0, '#6B4130') + '</g>', TONE.alert)]] },
+    { name: 'Tank rack', where: 'Paradise · prototype', who: 'filler, DM, owner', rungs: [
+      ['Full', 'ok', J.tankRack(31, 116, [BLUE.accent, BLUE.accent, BLUE.accent])],
+      ['Filling', 'busy', J.tankRack(31, 116, [BLUE.accent, BLUE.accent, 'empty'])],
+      ['Empties', 'low', J.tankRack(31, 116, ['empty', 'empty', 'empty'])],
+      ['15 by 1:30', 'alert', bubble(80, 62, 54, '<g transform="translate(30,14) scale(.62)">' + J.tankRack(31, 116, ['empty', 'empty', 'empty']) + '</g>', TONE.alert, false, true)]] },
+    { name: 'Boat fuel', where: 'Paradise · prototype', who: 'DM, instructor, owner', rungs: [
+      ['Full', 'ok', gauge(80, 84, 1)], ['Low', 'low', gauge(80, 84, .4)], null,
+      ['Refill ASAP', 'alert', bubble(80, 62, 54, '<g transform="translate(26,22) scale(.68)">' + gauge(80, 84, .1) + '</g>', TONE.alert, false, true)]] },
+    { name: 'Bed', where: 'Paradise hostel · proposed', who: 'front desk, housekeeping', rungs: [
+      ['Made, free', 'ok', J.bed(40, 26, 80, 64, BLUE.soft)],
+      ['Occupied', 'busy', J.bed(30, 26, 80, 64, BLUE.accent) + backpack(118, 70)], null,
+      ['Needs cleaning', 'low', J.bed(40, 26, 80, 64, '#FFFFFF') + '<g transform="rotate(-8 80 76)">' + r(36, 54, 70, 38, BLUE.soft, 10) + '</g>' + e(108, 92, 14, 7, '#FFFFFF') + e(106, 89, 10, 5, '#EEF4F8')]] },
+    { name: 'Dive slot', where: 'Paradise · proposed', who: 'front desk, DM, guest', rungs: [
+      ['Open', null, seats(0, 3)], ['Filling', 'busy', seats(2, 3)], ['Full', 'ok', seats(3, 3)], null] },
+    { name: 'Plan block', where: 'Tripwrights · proposed', who: 'traveller', rungs: [
+      ['Empty', null, block('empty')], ['Planned', 'busy', block('planned')], ['Booked by the place', 'ok', block('booked')], ['Closed then', 'alert', block('clash')]] }
+  ];
+
+  var out = '';
+  LADDERS.forEach(function (L) {
+    out += '<div class="ladder"><div class="ladder-head"><h3>' + L.name + '<span class="tag">' + L.where + '</span></h3><span class="who">sees it: ' + L.who + '</span></div><div class="grid g4">';
+    L.rungs.forEach(function (g) {
+      if (!g) { out += '<div class="rung empty">no rung here</div>'; return; }
+      var chip = g[1] ? '<span class="pill ' + g[1] + '"><i>' + MARK[g[1] === 'ok' ? 'ok' : g[1]] + '</i>' + { ok: 'ok', low: 'low', alert: 'alert', busy: 'busy' }[g[1]] + '</span>' : '<span class="pill plain">calm</span>';
+      out += '<div class="rung">' + svg(V, J.defs('l') + r(0, 0, 160, 130, '#F6DCC0', 16) + g[2], L.name + ': ' + g[0]) + '<div class="cap">' + g[0] + '</div>' + chip + '</div>';
+    });
+    out += '</div></div>';
+  });
+  document.getElementById('ladders-out').innerHTML = out;
+
+  /* ---------- A: capture (photo stack) ---------- */
+  var clipN = 0;
+  function photo(x, y, rot, inner) { var id = 'ph' + (++clipN); return '<g transform="rotate(' + rot + ' ' + (x + 80) + ' ' + (y + 60) + ')">' + J.shadow(x + 86, y + 128, 80, 8, .14) + r(x, y + 4, 160, 124, '#EADFD5', 8) + r(x, y, 160, 124, '#FFFFFF', 8) + '<clipPath id="' + id + '"><rect width="144" height="96" rx="4"/></clipPath><g transform="translate(' + (x + 8) + ',' + (y + 8) + ')"><g clip-path="url(#' + id + ')"><rect width="144" height="96" fill="#F6DCC0"/>' + inner + '</g></g></g>'; }
+  var sA = r(0, 0, 320, 230, '#FFF1E2') +
+    photo(30, 70, -8, r(0, 0, 144, 40, '#FFF6F2') + r(0, 0, 144, 8, PINK.soft) + J.counter(24, 46, 96, 30, '#FFFFFF', PINK.soft) + J.lamp(50, 0, 14) + J.lamp(100, 0, 14)) +
+    photo(140, 40, 7, r(0, 56, 144, 40, '#7FCBE0') + r(0, 52, 144, 6, '#FFF1E2') + J.rock(30, 52, .5) + '<g transform="translate(96,30) scale(.45)">' + J.tree(0, 0, .8) + '</g>') +
+    photo(90, 96, 2, r(0, 0, 144, 96, '#E8CDA8') + J.umbrella(46, 46, 32, PINK.soft, '#FFFFFF') + J.umbrella(106, 52, 26, PINK.soft, '#FFFFFF'));
+  document.getElementById('sA').innerHTML = svg('0 0 320 230', sA, 'Owner photos of the cafe');
+
+  /* ---------- B: block out, and C: art pass, same real footprint ---------- */
+  function lbl(cx, cy, s) { return mapPill(cx, cy, s, 'plain'); }
+  function cutBlock(x, y, w, h, s) { return r(x, y, w, h, '#F9D6D6', 10) + '<path d="M' + x + ',' + (y + h) + ' L' + (x + w) + ',' + y + '" stroke="#D9617E" stroke-width="4" stroke-linecap="round" opacity=".7"/>' + mapPill(x + w / 2, y + h / 2, s, 'alert'); }
+  var sea = '<path d="M0,370 C120,350 240,385 360,366 C480,348 560,372 640,358 L640,440 L0,440Z" fill="#7FCBE0"/><path d="M0,405 C160,392 300,412 460,398 C540,392 600,402 640,396 L640,440 L0,440Z" fill="#3AA3C4"/><path d="M0,370 C120,350 240,385 360,366 C480,348 560,372 640,358" stroke="#FFF1E2" stroke-width="6" fill="none"/>';
+  var sB = r(0, 0, 640, 440, '#F6DCC0') + sea +
+    r(0, 0, 70, 440, '#E8CDA8') + lbl(35, 200, 'Deck') +
+    r(90, 20, 250, 170, '#F1E0D4', 10) + lbl(215, 60, 'Cafe room') + r(160, 120, 130, 34, '#FFFFFF', 8) + lbl(225, 137, 'Counter') +
+    cutBlock(345, 20, 70, 170, 'Baths') + cutBlock(425, 20, 205, 230, 'Neighbor') +
+    r(110, 220, 70, 46, '#FFFFFF', 10) + r(200, 220, 70, 46, '#FFFFFF', 10) + r(290, 220, 70, 46, '#FFFFFF', 10) + r(110, 290, 70, 46, '#FFFFFF', 10) + lbl(235, 310, 'Patio ×4') +
+    '<circle cx="470" cy="300" r="46" fill="#8FB98B"/>' + lbl(470, 300, 'Tree') +
+    e(130, 372, 34, 14, '#80767E') + e(560, 360, 30, 12, '#80767E') + lbl(345, 410, 'Sea');
+  document.getElementById('sB').innerHTML = svg('0 0 640 440', sB, 'Block out with the bathrooms and neighbor marked cut');
+
+  var sC = J.defs('c', PINK) + r(0, 0, 640, 440, '#F6DCC0') + sea + '<rect x="0" y="0" width="70" height="440" fill="url(#c-plankV)"/>' +
+    J.woodPost(70, 60) + J.woodPost(70, 160) + J.woodPost(70, 260) + J.woodPost(70, 360) +
+    J.room(100, 30, 470, 180, 'url(#c-brick)', PINK, { bottom: [300, 380] }) + J.backWall('c', 100, 30, 470, PINK, [130, 430]) +
+    J.lamp(260, 30, 20) + J.lamp(380, 30, 20) + J.counter(210, 140, 220, 46, '#FFFFFF', PINK.soft) + J.screen(380, 146, PINK) +
+    J.plant(130, 200, .6) + J.plant(540, 200, .6) +
+    J.umbrella(170, 270, 42, PINK.soft, '#FFFFFF') + J.umbrella(290, 262, 42, PINK.soft, '#FFFFFF') + J.umbrella(180, 330, 34, PINK.soft, '#FFFFFF') +
+    J.rock(130, 362, .7, 1) + J.rock(220, 378, .45, 2) + J.rock(580, 352, .55, 3) +
+    '<g transform="translate(470,300) scale(1.3) translate(-470,-300)">' + J.tree(470, 290, .55) + '</g>' +
+    J.crab(400, 352) + J.crab(440, 362);
+  document.getElementById('sC').innerHTML = svg('0 0 640 440', sC, 'Art pass: Josie-style cafe with the cuts applied');
+
+  /* ---------- bubbles: don't / do / anatomy ---------- */
+  function isle(cx, cy, rx, ry) { return J.land(cx, cy, rx, ry, 3, .12); }
+  var water = r(0, 0, 640, 360, '#7FCBE0') + J.dash(60, 60, 50) + J.dash(500, 300, 60) + J.dash(300, 330, 40);
+  var dont = water + isle(170, 180, 130, 60) + isle(470, 150, 110, 50) +
+    '<text x="170" y="290" font-family="Arial, sans-serif" font-weight="700" font-size="40" fill="#FFFFFF" stroke="#1F5F8B" stroke-width="5" paint-order="stroke" text-anchor="middle">Utila</text>' +
+    '<text x="470" y="250" font-family="Arial, sans-serif" font-weight="700" font-size="40" fill="#FFFFFF" stroke="#1F5F8B" stroke-width="5" paint-order="stroke" text-anchor="middle">Roatán</text>' +
+    r(520, 90, 60, 26, '#FFFFFF', 13) + '<text x="550" y="109" font-family="Arial" font-weight="700" font-size="16" fill="#C0392B" text-anchor="middle">soon</text>';
+  document.getElementById('dont').innerHTML = svg('0 0 640 360', dont, 'Wrong: outlined free text over the map');
+  var doIt = water + isle(170, 180, 130, 60) + isle(470, 150, 110, 50) +
+    J.pin(140, 170, '#B55573') + J.pin(200, 168, '#3E86B8') + mapPill(170, 272, 'Utila', 'plain') +
+    '<g opacity=".55">' + J.palm(470, 150, .5) + '</g>' + mapPill(470, 236, 'Roatán · soon', 'busy');
+  document.getElementById('do').innerHTML = svg('0 0 640 360', doIt, 'Right: names in anchored pills, soon as a busy pill');
+
+  var an = r(0, 0, 520, 300, '#F6DCC0', 18) + '<rect x="0" y="210" width="520" height="90" fill="#E8CDA8"/>' +
+    '<g transform="translate(60,40)">' + J.tankRack(0, 160, ['empty', 'empty', 'empty', 'empty']) + '</g>' +
+    '<path d="M190,140 L262,118" stroke="#86606B" stroke-width="3" stroke-dasharray="4 5"/>' +
+    bubble(320, 100, 62, '<g transform="translate(275,52) scale(.75)">' + J.tankRack(0, 120, ['empty', 'empty', 'empty']) + '</g>', TONE.alert, false, true) +
+    mapPill(320, 186, '12 by 1:30', 'alert');
+  document.getElementById('anatomy').innerHTML = svg('0 0 520 300', an, 'Bubble anatomy on the tank rack');
+})();
+</script>
+</body>
+</html>

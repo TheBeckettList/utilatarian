@@ -46,6 +46,7 @@ see `PC` in `places/paradise/map.js` and `TC` in `Tripwrights/rig.js`. `kit.js` 
 
 ## Pieces
 
+- `levels.html`: **the level board**, the game design drawn: build a level (photos, blocks, art pass), state ladders, bubbles, the 2-for-1 step ledger. Rules in `docs/level-design.md`.
 - `palettes.json`: **the one source of truth** for every color. Edit here.
 - `tools/build-art.mjs` (repo root): `node tools/build-art.mjs` writes `tokens.css` and `palettes.js` from it.
 - `tokens.css`: world tokens, a `[data-place="…"]` block per place (light + dark), then `components.css` (cards, buttons, pills, chips, sign, sheet). Put `data-place="paradise"` on `<html>` or any container.
