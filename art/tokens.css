@@ -127,18 +127,18 @@
   --line: #2A4A66;
 }
 
-/* Paradise: blue, white wood and black dive gear; an SSI and PADI dive shop with a hostel */
+/* Paradise: white clapboard, teal-blue trim and railings, grey tin roofs, a thatched palapa, white sand behind a seawall, black dive gear; a PADI dive shop with a hostel (taken from the owner's photos) */
 [data-place="paradise"] {
   --ink: #1F3A4D;
   --ink2: #557085;
   --paper: #F7FAFC;
   --card: #FFFFFF;
-  --accent: #3E86B8;
+  --accent: #2479A8;
   --accent-ink: #FFFFFF;
-  --accent-deep: #2E6E9E;
-  --edge: #2B5F86;
-  --soft: #BFE0F2;
-  --wash: #E6F2FA;
+  --accent-deep: #1B5E86;
+  --edge: #1B5E86;
+  --soft: #BFE3EE;
+  --wash: #E6F3F8;
   --pop: #2E3238;
   --line: #E3E7EA;
 }
@@ -171,6 +171,52 @@
   --wash: #12293A;
   --pop: #C9D3DA;
   --line: #2A4A5E;
+}
+
+/* Dive shop (template): the dive-shop game: lagoon teal, dive-flag red, white sand and black gear. The chrome for every dive shop; each shop then wears its own accent on its own things */
+[data-place="dive-shop"] {
+  --ink: #12313F;
+  --ink2: #4D6B78;
+  --paper: #F1F7F6;
+  --card: #FFFFFF;
+  --accent: #0F7C82;
+  --accent-ink: #FFFFFF;
+  --accent-deep: #0B6268;
+  --edge: #0B5157;
+  --soft: #A7DCD8;
+  --wash: #DFF1EF;
+  --pop: #E0473F;
+  --line: #D2E4E2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-place="dive-shop"], :root:not([data-theme="light"])[data-place="dive-shop"] {
+    --ink: #E4F3F1;
+    --ink2: #9CBDBA;
+    --paper: #0B1D20;
+    --card: #12292D;
+    --accent: #5CC3C0;
+    --accent-ink: #062226;
+    --accent-deep: #5CC3C0;
+    --edge: #2E8E8F;
+    --soft: #1F4C50;
+    --wash: #0F2A2E;
+    --pop: #F07A70;
+    --line: #22403F;
+  }
+}
+[data-theme="dark"] [data-place="dive-shop"], [data-theme="dark"][data-place="dive-shop"] {
+  --ink: #E4F3F1;
+  --ink2: #9CBDBA;
+  --paper: #0B1D20;
+  --card: #12292D;
+  --accent: #5CC3C0;
+  --accent-ink: #062226;
+  --accent-deep: #5CC3C0;
+  --edge: #2E8E8F;
+  --soft: #1F4C50;
+  --wash: #0F2A2E;
+  --pop: #F07A70;
+  --line: #22403F;
 }
 
 /* area Utila (a boat's own tint inside Tripwrights) */

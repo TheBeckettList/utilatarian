@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en" data-place="dive-shop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dive shop board</title>
+<!-- The dive-shop game, the way Josie's design boards are the cafe game: every screen a dive shop needs, drawn in the dive-shop
+     template palette (art/palettes.json: dive-shop) with Paradise as the example shop. Rules: docs/dive-shop-handbook.md.
+     SAMPLE DATA: names, counts, times and sizes on this board are made up to show the screens; nothing here is Paradise's real data. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+  :root {
+    --ink: #12313F; --ink2: #4D6B78; --paper: #F1F7F6; --card: #FFFFFF; --accent: #0F7C82; --accent-deep: #0B6268; --edge: #0B5157;
+    --soft: #A7DCD8; --wash: #DFF1EF; --pop: #E0473F; --line: #D2E4E2; --ledge: #CBE3E0;
+    --shop: #2479A8; --shop-soft: #BFE3EE;
+    --ok: #D9F0E8; --ok-ink: #2F6B58; --low: #FBEBC5; --low-ink: #8A5C00; --alert: #F9D6D6; --alert-ink: #8E2F3F; --busy: #E6EEEE; --busy-ink: #4D6B78;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 600 15px/1.45 'Nunito', sans-serif; }
+  h1, h2, h3, .b { font-family: 'Baloo 2', 'Nunito', sans-serif; font-weight: 800; margin: 0; }
+  h1 { font-size: 30px; color: var(--accent); } h2 { font-size: 26px; margin-bottom: 4px; } h3 { font-size: 18px; }
+  header.top { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: #FFF; box-shadow: 0 2px 0 var(--line); flex-wrap: wrap; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: var(--wash); border-radius: 999px; flex-wrap: wrap; }
+  .seg a, .seg span { padding: 6px 15px; border-radius: 999px; color: var(--ink2); text-decoration: none; font-family: 'Baloo 2'; font-weight: 800; font-size: 15px; }
+  .seg .on { background: #FFF; color: var(--ink); box-shadow: 0 3px 0 var(--ledge); }
+  main { max-width: 1320px; margin: 0 auto; padding: 28px 16px 70px; }
+  section { margin: 0 0 56px; }
+  .sub { color: var(--ink2); margin: 0 0 18px; max-width: 860px; }
+  .cap { color: var(--ink2); font-size: 13px; margin: 10px 4px 0; text-align: center; }
+  .cap b { color: var(--accent); font-family: 'Baloo 2'; font-weight: 800; font-size: 15px; display: block; }
+  svg { display: block; }
+  /* device frames */
+  .tablet { background: var(--paper); border-radius: 30px; box-shadow: 0 0 0 10px #FFF, 0 14px 0 10px var(--ledge); overflow: hidden; }
+  .phone { width: 360px; background: var(--paper); border-radius: 40px; box-shadow: 0 0 0 10px #FFF, 0 14px 0 10px var(--ledge); overflow: hidden; display: flex; flex-direction: column; min-height: 720px; }
+  .phones { display: flex; gap: 46px; flex-wrap: wrap; justify-content: center; padding: 10px; }
+  .phones > div { width: 380px; }
+  .appbar { display: flex; align-items: center; gap: 14px; padding: 12px 18px; background: #FFF; }
+  .shop { font-family: 'Baloo 2'; font-weight: 800; font-size: 24px; color: var(--shop); }
+  .grow { flex: 1; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--wash); color: var(--accent); display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; }
+  .lang { display: flex; background: var(--wash); border-radius: 999px; padding: 3px; font-family: 'Baloo 2'; font-weight: 800; font-size: 13px; }
+  .lang span { padding: 3px 10px; border-radius: 999px; color: var(--ink2); } .lang .on { background: #FFF; color: var(--ink); }
+  .card { background: #FFF; border-radius: 24px; box-shadow: 0 5px 0 var(--ledge); padding: 14px 16px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px 3px 4px; border-radius: 999px; font-weight: 800; font-size: 13px; white-space: nowrap; }
+  .pill i { width: 20px; height: 20px; border-radius: 50%; background: #FFF; display: grid; place-items: center; font-style: normal; font-size: 12px; }
+  .ok { background: var(--ok); color: var(--ok-ink); } .low { background: var(--low); color: var(--low-ink); } .alert { background: var(--alert); color: var(--alert-ink); } .busy { background: var(--busy); color: var(--busy-ink); }
+  .plain { background: var(--wash); color: var(--ink2); padding: 3px 11px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 22px; font: 800 18px 'Baloo 2', sans-serif; color: #FFF; background: var(--accent); box-shadow: 0 5px 0 var(--edge); cursor: pointer; }
+  .btn.ghost { background: #FFF; color: var(--accent); box-shadow: 0 0 0 3px var(--soft), 0 5px 0 var(--ledge); }
+  .btn.big { width: 100%; padding: 18px; font-size: 22px; border-radius: 26px; }
+  .btn.red { background: var(--pop); box-shadow: 0 5px 0 #A9302A; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .muted { color: var(--ink2); font-size: 13px; }
+  .ico { width: 54px; height: 54px; border-radius: 16px; background: var(--wash); display: grid; place-items: center; flex: none; overflow: hidden; }
+  .ico svg { width: 46px; height: 46px; }
+  /* POS */
+  .pos { display: grid; grid-template-columns: 170px 1fr 330px; gap: 16px; padding: 16px; min-height: 640px; }
+  .rail { display: grid; gap: 10px; align-content: start; }
+  .rail div { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 18px; font-family: 'Baloo 2'; font-weight: 800; font-size: 15px; line-height: 1.1; }
+  .rail .on { background: #FFF; box-shadow: 0 0 0 3px var(--soft), 0 5px 0 var(--ledge); }
+  .rail .ico { width: 46px; height: 46px; } .rail .ico svg { width: 40px; height: 40px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-content: start; }
+  .tile { background: #FFF; border-radius: 24px; box-shadow: 0 5px 0 var(--ledge); padding: 10px 10px 14px; position: relative; }
+  .tile .art { height: 120px; border-radius: 18px; background: var(--wash); display: grid; place-items: center; }
+  .tile .art svg { height: 104px; width: 100%; }
+  .tile h3 { font-size: 17px; margin: 8px 4px 0; } .tile .muted { margin: 0 4px; }
+  .tile .tag { position: absolute; top: 16px; left: 16px; }
+  .tile.dim .art { opacity: .55; }
+  .ticket { background: #FFF; border-radius: 26px; box-shadow: 0 5px 0 var(--ledge); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .line { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 2px dashed var(--line); }
+  .line .ico { width: 46px; height: 46px; } .line .ico svg { width: 40px; height: 40px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; background: var(--wash); border-radius: 999px; padding: 2px 9px; font-weight: 800; font-size: 12px; color: var(--ink2); }
+  .price { margin-left: auto; font-family: 'Baloo 2'; font-weight: 800; }
+  .filters { display: flex; gap: 10px; margin: 6px 0 14px; flex-wrap: wrap; }
+  .filters .f { display: flex; align-items: center; gap: 8px; background: #FFF; border-radius: 999px; padding: 6px 14px 6px 6px; font-family: 'Baloo 2'; font-weight: 800; box-shadow: 0 4px 0 var(--ledge); }
+  .filters .f.on { background: var(--accent); color: #FFF; box-shadow: 0 4px 0 var(--edge); }
+  .filters .f b { width: 26px; height: 26px; border-radius: 50%; background: #FFF; color: var(--accent); display: grid; place-items: center; font-size: 12px; }
+  /* overview */
+  .ov { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; padding: 16px; }
+  .mapcard { background: #FFF; border-radius: 26px; padding: 10px; box-shadow: 0 5px 0 var(--ledge); }
+  .mapcard svg { width: 100%; height: auto; border-radius: 18px; }
+  .list { display: grid; gap: 14px; align-content: start; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+  .ring { width: 48px; height: 48px; border-radius: 50%; border: 4px solid var(--soft); display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; font-size: 18px; flex: none; }
+  .ring.loud { border-color: #D9617E; } .ring.amber { border-color: #F2B632; }
+  /* phones */
+  .pbody { padding: 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .hero { text-align: center; }
+  .hero .num { font-family: 'Baloo 2'; font-weight: 800; font-size: 54px; line-height: 1; }
+  .seats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .seat { text-align: center; }
+  .seat .dot { width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 4px; display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; color: #FFF; background: var(--shop); box-shadow: 0 4px 0 #1B5E86; }
+  .seat .dot.empty { background: transparent; border: 3px dashed var(--soft); box-shadow: none; color: var(--ink2); }
+  .feed { display: grid; gap: 12px; }
+  .feed .card { display: flex; gap: 12px; align-items: center; }
+  .time { font-family: 'Baloo 2'; font-weight: 800; color: var(--accent); min-width: 58px; }
+  .coral { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center; font-size: 11px; color: var(--ink2); font-weight: 800; }
+  .coral svg { width: 100%; height: 56px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat .num { font-family: 'Baloo 2'; font-weight: 800; font-size: 34px; line-height: 1.1; }
+  .bars { display: flex; align-items: flex-end; gap: 5px; height: 110px; margin-top: 10px; }
+  .bars i { flex: 1; background: var(--accent); border-radius: 6px 6px 2px 2px; display: block; }
+  .bars i.later { background: var(--soft); }
+  .ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .rung { background: #FFF; border-radius: 22px; box-shadow: 0 5px 0 var(--ledge); padding: 8px 8px 12px; text-align: center; }
+  .rung svg { width: 100%; height: 120px; }
+  .rung .b { font-size: 15px; margin: 4px 0 6px; }
+  .rung.none { background: transparent; box-shadow: none; border: 2px dashed var(--line); display: grid; place-items: center; color: var(--ink2); font-size: 13px; }
+  .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
+  .sw { width: 128px; } .sw i { display: block; height: 64px; border-radius: 18px; box-shadow: 0 4px 0 var(--ledge); }
+  .sw div { font-size: 12px; color: var(--ink2); margin-top: 6px; } .sw b { font-family: 'Baloo 2'; color: var(--ink); font-size: 14px; display: block; }
+  .pulse { animation: pulse 1.6s ease-in-out infinite; } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+  @media (max-width: 1100px) { .pos { grid-template-columns: 1fr; } .ov { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Dive shop board</h1>
+  <nav class="seg"><a href="#palette">Palette</a><a href="#map">The shop</a><a href="#desk">Front desk</a><a href="#overview">Overview</a><a href="#crew">Crew phones</a><a href="#guest">Guest</a><a href="#day">Owner's day</a><a href="#ladders">Objects grow</a></nav>
+  <span class="muted">Handbook: docs/dive-shop-handbook.md · sample data</span>
+</header>
+<main>
+
+<section id="palette">
+  <h2>The dive-shop palette</h2>
+  <p class="sub">Josie's pink belongs to Josie. Every dive shop runs on this chrome: lagoon teal for the game, dive-flag red only for the one loud thing, white sand and black gear on the map. Each shop then wears its own accent on its own things (Paradise: teal-blue trim, grey tin roofs).</p>
+  <div class="card"><div class="swatches" id="sw"></div></div>
+</section>
+
+<section id="map">
+  <h2>The shop is a level</h2>
+  <p class="sub">Paradise drawn from the owner's photos: the dock to the shaded end platform, the boat alongside, the raised sand behind its seawall, the white gable building, the breezeway stairs, the grey-roof building with its porch, office and classroom. Upstairs: the walkway on the inside third, two dorms and a room. Interiors not yet seen are stand-ins.</p>
+  <div class="row" style="margin-bottom:12px"><div class="seg" id="floors"><span class="on" data-f="ground">Ground</span><span data-f="upstairs">Upstairs</span></div></div>
+  <div class="mapcard" id="level"></div>
+</section>
+
+<section id="desk">
+  <h2>Front desk</h2>
+  <p class="sub">The POS, dive-shop shaped. Same bones as Josie's register: categories on the left, big tiles, the ticket on the right, one big pill to finish. The diver's card works like Josie's diet toggles: it greys out what the diver can't book yet and says why, never hides it. Sizes travel with the diver, so nobody asks "what size fins?" twice.</p>
+  <div class="tablet">
+    <div class="appbar"><span class="shop">Paradise</span><span class="grow"></span><div class="seg"><span class="on">Desk</span><span>Overview</span><span>Day</span></div><span class="grow"></span><div class="lang"><span class="on">EN</span><span>ES</span></div><span class="b">8:42</span><span class="avatar">M</span></div>
+    <div class="pos">
+      <div class="rail" id="rail"></div>
+      <div>
+        <div class="row"><h2 style="font-size:24px">Fun dives</h2><span class="muted">boat times from today's board</span></div>
+        <div class="filters"><span class="f on"><b>P</b>PADI · Advanced</span><span class="f"><b>N</b>Nitrox</span><span class="f"><b>⌀</b>No rental</span></div>
+        <div class="tiles" id="tiles"></div>
+      </div>
+      <div class="ticket">
+        <div class="row"><span class="avatar" style="width:46px;height:46px">TM</span><div><div class="muted">Diver</div><div class="b" style="font-size:22px">Tom M.</div></div><span class="grow"></span><span class="pill ok"><i>✓</i>waiver</span></div>
+        <div class="row"><span class="pill plain">PADI · Advanced</span><span class="muted">card checked at arrival</span></div>
+        <div id="ticket"></div>
+        <div class="row" style="gap:12px;margin-top:auto"><span class="btn ghost" style="flex:1">Add to tab</span><span class="btn" style="flex:1.4">Pay · L 2,450</span></div>
+        <div class="row" style="gap:8px"><span class="pill busy"><i>…</i>AM boat 10/12</span><span class="pill busy"><i>…</i>PM boat 8/12</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>Booking a dive is one tile.</b>The seat, the tanks for the filler and the gear by size all follow from it. The waiver was signed on the diver's own phone in Tripwrights, so there is no clipboard.</p>
+</section>
+
+<section id="overview">
+  <h2>Overview</h2>
+  <p class="sub">The same map for the person running the floor, with "do this next" beside it. Things finish when the real thing happens: the boat leaving closes its manifest, the filler's Done fills the rack, housekeeping's tap makes the bed.</p>
+  <div class="tablet">
+    <div class="appbar"><span class="shop">Paradise</span><span class="grow"></span><div class="seg"><span>Desk</span><span class="on">Overview</span><span>Day</span></div><span class="grow"></span><div class="lang"><span class="on">EN</span><span>ES</span></div><span class="b">11:42</span><span class="avatar">J</span></div>
+    <div class="ov">
+      <div class="mapcard" id="ovmap"></div>
+      <div class="list">
+        <div class="card"><h3>Next boat</h3>
+          <div class="item"><span class="ring">PM</span><div class="grow"><div class="b">1:30 · Black Hills</div><div class="muted">8 of 12 seats · 2 students</div></div><span class="btn ghost" style="padding:8px 16px;font-size:15px">Manifest</span></div></div>
+        <div class="card"><h3>Tanks</h3>
+          <div class="item"><span class="ring loud pulse">12</span><div class="grow"><div class="b">needed by 1:30</div><div class="muted">asked by Luis (DM) · nobody on it yet</div></div></div>
+          <div class="item"><span class="ring">6</span><div class="grow"><div class="b">empties, no rush</div><div class="muted">from the night dive</div></div></div></div>
+        <div class="card"><h3>Boat and rooms</h3>
+          <div class="item"><span class="ring amber">!</span><div class="grow"><div class="b">Fuel low</div><div class="muted">flagged on the AM trip</div></div><span class="pill low"><i>!</i>low</span></div>
+          <div class="item"><span class="ring">2</span><div class="grow"><div class="b">beds to clean</div><div class="muted">dorm over the office</div></div><span class="pill busy"><i>…</i>busy</span></div></div>
+        <div class="card"><h3>Just done</h3>
+          <div class="item"><span class="ring">AM</span><div class="grow"><div class="b">Boat back · 10 divers</div><div class="muted">11:20</div></div><span class="btn ghost" style="padding:6px 14px;font-size:14px">Undo</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="crew">
+  <h2>Crew phones</h2>
+  <p class="sub">One card per screen, big enough for wet hands. Three verbs per role at most. The filler sees tanks, not bills; the DM sees the boat, not the till.</p>
+  <div class="phones">
+    <div><div class="phone">
+      <div class="appbar"><span class="ico" style="width:42px;height:42px" id="i-tank1"></span><div><div class="b" style="font-size:20px">Fills</div><div class="muted">Tank filler · Ana</div></div><span class="grow"></span><div class="lang"><span>EN</span><span class="on">ES</span></div></div>
+      <div class="pbody">
+        <div class="card hero"><div id="filler-art"></div><div class="num">12</div><div class="b" style="font-size:20px">tanks by 1:30</div><div class="muted">PM boat · asked 11:32 by Luis</div></div>
+        <div class="row"><span class="pill alert"><i>!!</i>alert</span><span class="muted">1 h 48 min to the boat</span></div>
+        <span class="btn big">I'm on it</span>
+        <span class="btn big ghost">Done</span>
+        <div class="muted" style="text-align:center">scroll for the no-rush note ↓</div>
+      </div></div><p class="cap"><b>Tank filler</b>"I'm on it" tells Luis and turns the bubble from rose to busy. "Done" fills the rack on the map.</p></div>
+    <div><div class="phone">
+      <div class="appbar"><span class="ico" style="width:42px;height:42px" id="i-boat1"></span><div><div class="b" style="font-size:20px">PM boat</div><div class="muted">Divemaster · Luis</div></div><span class="grow"></span><span class="b">12:58</span></div>
+      <div class="pbody">
+        <div class="card"><div class="row"><h3>Black Hills · 1:30</h3><span class="grow"></span><span class="pill busy"><i>…</i>8/12</span></div>
+          <div class="seats" id="seats" style="margin-top:12px"></div></div>
+        <div class="card"><h3>Gear on board</h3><div class="chips" style="margin-top:6px"><span class="chip">BCD S ×2</span><span class="chip">BCD M ×3</span><span class="chip">fins 8 ×2</span><span class="chip">wetsuit 3 mm ×4</span></div></div>
+        <div class="card"><div class="row"><span class="ico" id="i-fuel"></span><div class="grow"><div class="b">Fuel</div><div class="muted">tap what the gauge says</div></div></div>
+          <div class="row" style="gap:8px;margin-top:10px"><span class="pill ok"><i>✓</i>Full</span><span class="pill low"><i>!</i>Low</span><span class="pill alert"><i>!!</i>Refill ASAP</span></div></div>
+        <span class="btn big">Lines off</span>
+      </div></div><p class="cap"><b>Divemaster / captain</b>"Lines off" is the real moment the boat leaves: it closes the manifest, tells the desk and replaces the radio call.</p></div>
+    <div><div class="phone">
+      <div class="appbar"><span class="ico" style="width:42px;height:42px" id="i-bed1"></span><div><div class="b" style="font-size:20px">Rooms</div><div class="muted">Housekeeping · Rosa</div></div><span class="grow"></span><div class="lang"><span>EN</span><span class="on">ES</span></div></div>
+      <div class="pbody">
+        <div class="card"><div class="row"><h3>Dorm over the office</h3><span class="grow"></span><span class="pill busy"><i>…</i>2 to clean</span></div>
+          <div id="beds" class="row" style="justify-content:space-around;margin-top:10px"></div></div>
+        <div class="card"><div class="row"><h3>Room over the porch</h3><span class="grow"></span><span class="pill ok"><i>✓</i>ready</span></div><div class="muted">check-in 3:00 · Sam B.</div></div>
+        <div class="card"><div class="row"><h3>Dorm at the back</h3><span class="grow"></span><span class="pill ok"><i>✓</i>6/8</span></div></div>
+        <div class="muted" style="text-align:center;margin-top:auto">Tap a bed when it's made. That's the whole job.</div>
+      </div></div><p class="cap"><b>Housekeeping</b>One tap per bed. The desk sees it ready without asking; the guest's "your day" says their bunk is ready.</p></div>
+  </div>
+</section>
+
+<section id="guest">
+  <h2>The guest's day</h2>
+  <p class="sub">The companion: a short feed, never a dashboard. The plan made in Tripwrights becomes "what's on". A course grows like a reef, one piece per real step, the way Josie's tables grow from a pot to a flower.</p>
+  <div class="phones">
+    <div><div class="phone">
+      <div class="appbar"><span class="avatar">SB</span><div><div class="b" style="font-size:20px">Your day</div><div class="muted">Thursday · Utila</div></div><span class="grow"></span><div class="lang"><span class="on">EN</span><span>ES</span></div></div>
+      <div class="pbody"><div class="feed">
+        <div class="card"><span class="time">7:30</span><div class="grow"><div class="b">AM boat · seat 4</div><div class="muted">bring your mask · gear is on board</div></div><span class="ico" id="g-boat"></span></div>
+        <div class="card"><span class="time">12:15</span><div class="grow"><div class="b">Lunch at Josie's</div><div class="muted">from your plan · order ahead</div></div><span class="ico" style="background:#FDEDF1" id="g-cup"></span></div>
+        <div class="card"><span class="time">1:30</span><div class="grow"><div class="b">PM boat · Black Hills</div><div class="muted">8 of 12 · you're on it</div></div><span class="pill ok"><i>✓</i></span></div>
+        <div class="card"><span class="time">3:00</span><div class="grow"><div class="b">Bunk 3 ready</div><div class="muted">dorm over the office</div></div><span class="ico" id="g-bed"></span></div>
+      </div></div></div><p class="cap"><b>Your day</b>Only what is yours. No prep times, no promises: boats and rooms show what is true now.</p></div>
+    <div><div class="phone">
+      <div class="appbar"><span class="avatar">SB</span><div><div class="b" style="font-size:20px">Open Water</div><div class="muted">PADI · with Marta</div></div></div>
+      <div class="pbody">
+        <div class="card"><h3>Your reef</h3><div class="coral" id="coral" style="margin-top:8px"></div></div>
+        <div class="card"><div class="row"><span class="ico" id="g-card"></span><div><div class="b">Next: ocean dives 3 and 4</div><div class="muted">tomorrow, AM boat</div></div></div></div>
+        <div class="card"><div class="b">Logbook</div><div class="muted">2 ocean dives · 18 m max · signed by Marta</div></div>
+      </div></div><p class="cap"><b>Course progress</b>Each step grows the reef when the instructor signs it, which they already do in the logbook. Your own progress, never compared with anyone's.</p></div>
+  </div>
+</section>
+
+<section id="day">
+  <h2>The owner's day</h2>
+  <p class="sub">The same map with counts on it, four numbers and a replay. The game scores the shop, never the person: fills, boats and waits per day, no names.</p>
+  <div class="tablet" style="padding:16px">
+    <div class="stats"><div class="card stat"><div class="num">22</div><div class="muted">divers on boats · 3 trips</div></div><div class="card stat"><div class="num">58</div><div class="muted">tanks filled</div></div><div class="card stat"><div class="num">24 min</div><div class="muted">average fill wait</div></div><div class="card stat"><div class="num">12:40</div><div class="muted">busiest 15 min at the fill station</div></div></div>
+    <div class="ov" style="padding:16px 0 0">
+      <div class="mapcard" id="daymap"></div>
+      <div class="list">
+        <div class="card"><div class="row"><h3>Replay the day</h3><span class="grow"></span><span class="pill plain">sample day</span></div><div class="bars" id="bars"></div><div class="row muted" style="justify-content:space-between"><span>6 am</span><span>noon</span><span>8 pm</span></div></div>
+        <div class="card"><h3>Ran low today</h3>
+          <div class="item"><span class="ico" id="d-fuel"></span><div class="grow b">Boat fuel</div><span class="muted">low 11:05</span></div>
+          <div class="item"><span class="ico" id="d-suit"></span><div class="grow b">Wetsuits, size S</div><span class="muted">out 7:20</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ladders">
+  <h2>Objects grow</h2>
+  <p class="sub">Every object a dive shop tends, as a ladder of four rungs or fewer. The drawing changes, not a label. Safety is never a game: the weather call is the captain's, shown, never scored.</p>
+  <div id="lads"></div>
+</section>
+</main>
+
+<script src="josie.js"></script>
+<script src="world.js"></script>
+<script src="island.js"></script>
+<script src="level-paradise.js"></script>
+<script>
+(function () {
+  'use strict';
+  var J = window.UJ, C = J.C, r = J.r, e = J.e, PC = J.level.PARADISE;
+  var T = { accent: '#0F7C82', soft: '#A7DCD8', wash: '#DFF1EF', pop: '#E0473F' };
+  function svg(vb, inner, cls) { return '<svg viewBox="' + vb + '"' + (cls ? ' class="' + cls + '"' : '') + ' role="img">' + J.defs('db', PC) + inner + '</svg>'; }
+  function at(x, y, s, m) { return J.at(x, y, 0, s, m); }
+  /* icon drawings, all from the kit */
+  var ICON = {
+    tank: function () { return svg('0 0 60 80', J.tank(19, 74, PC.tank)); },
+    tanks: function () { return svg('0 0 120 90', J.tankRack(10, 84, [PC.tank, PC.tank, PC.tank])); },
+    empties: function () { return svg('0 0 120 90', J.tankRack(10, 84, ['empty', 'empty', 'empty'])); },
+    boat: function () { return svg('-90 -170 180 340', J.boat('db', 'dive', PC, { rows: 4 })); },
+    boatSide: function () { return svg('-80 -80 160 160', '<g transform="rotate(90)">' + J.boat('db', 'dive', PC, { rows: 3 }).replace(/^/, '') + '</g>'); },
+    mask: function () { return svg('0 0 60 40', J.mask(30, 20, C.gear, C.gear)); },
+    fins: function () { return svg('0 0 70 70', J.fins(35, 64, C.gear, PC.accent)); },
+    suit: function () { return svg('0 -14 60 110', J.wetsuit(30, 0, C.gear, PC.soft)); },
+    bcd: function () { return svg('0 -10 60 60', J.bcd(30, 4, C.gear)); },
+    bed: function () { return svg('0 0 120 100', J.bed(14, 14, 92, 64, PC.soft)); },
+    bedMade: function () { return svg('0 0 120 100', J.bed(14, 14, 92, 64, PC.accent)); },
+    bunk: function () { return svg('0 -10 100 110', J.bunk(16, 14, 68, 46, PC.accent, PC.soft)); },
+    flag: function () { return svg('-4 -4 44 34', J.diveFlag(0, 0, 0)); },
+    cup: function () { return svg('0 0 48 58', '<rect x="9" y="38" width="30" height="6" rx="2" fill="#f2a477"/><path d="M11 44 L37 44 L34 57 L14 57 Z" fill="#fbae7a"/><path d="M24 40 L24 18" stroke="#6f9a6b" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="10" r="7" fill="#F5B5C8"/><circle cx="24" cy="10" r="3" fill="#fff1c9"/>'); },
+    card: function () { return svg('0 0 80 56', r(4, 6, 72, 46, '#0B6268', 10) + r(4, 4, 72, 46, T.accent, 10) + r(12, 14, 22, 22, '#FFFFFF', 11) + r(42, 16, 26, 6, '#FFFFFF', 3, ' opacity=".8"') + r(42, 28, 18, 6, '#FFFFFF', 3, ' opacity=".5"')); },
+    fuel: function () { return svg('0 0 110 70', gauge(55, 58, .36)); },
+    compressor: function () { return svg('0 0 200 110', J.compressor(10, 104, PC.accent)); },
+    palapa: function () { return svg('0 0 120 120', J.defs('db', PC) + J.palapa('db', 60, 60, 52)); }
+  };
+  function gauge(cx, cy, frac) {
+    var R = 40, seg = [['#7CC9A2', 0, .45], ['#F2B632', .45, .75], ['#D9617E', .75, 1]], h = J.block(cx - 54, cy - 54, 108, 64, '#FFFFFF', '#E3E7EA', 8, 14), i;
+    function pt(t) { var a = Math.PI + t * Math.PI; return [cx + Math.cos(a) * R, cy + Math.sin(a) * R]; }
+    for (i = 0; i < 3; i++) { var a0 = pt(seg[i][1]), a1 = pt(seg[i][2]); h += '<path d="M' + a0[0].toFixed(1) + ',' + a0[1].toFixed(1) + ' A40,40 0 0 1 ' + a1[0].toFixed(1) + ',' + a1[1].toFixed(1) + '" stroke="' + seg[i][0] + '" stroke-width="12" fill="none"/>'; }
+    var n = pt(1 - frac); return h + '<path d="M' + cx + ',' + cy + ' L' + n[0].toFixed(1) + ',' + n[1].toFixed(1) + '" stroke="#12313F" stroke-width="5" stroke-linecap="round"/><circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#12313F"/>';
+  }
+  function put(id, html) { var el = document.getElementById(id); if (el) { el.innerHTML = html; } }
+
+  /* palette */
+  var SW = [['Lagoon', '#0F7C82', 'accent: the game\'s buttons, rings, tabs'], ['Deep lagoon', '#0B6268', 'ledges under accent buttons'], ['Shallows', '#A7DCD8', 'soft rings, chips, empty seats'], ['Wash', '#DFF1EF', 'icon tiles, segmented controls'],
+    ['Dive flag', '#E0473F', 'pop: the one loud thing only'], ['Ink', '#12313F', 'text, gauge needles'], ['White sand', '#F7EDE0', 'the sand platform on the map'], ['Black gear', '#2E3238', 'BCDs, fins, masks, wetsuits']];
+  put('sw', SW.map(function (s) { return '<div class="sw"><i style="background:' + s[1] + '"></i><div><b>' + s[0] + '</b>' + s[1] + '<br>' + s[2] + '</div></div>'; }).join(''));
+
+  /* the level, with a floor switch */
+  function level(f, el) { var L = J.level.paradise({ floor: f }); document.getElementById(el).innerHTML = '<svg viewBox="0 0 ' + L.W + ' ' + L.H + '" style="width:100%;height:auto;border-radius:18px">' + L.svg + '</svg>'; }
+  level('ground', 'level'); level('ground', 'ovmap'); level('ground', 'daymap');
+  [].forEach.call(document.querySelectorAll('#floors span'), function (b) { b.addEventListener('click', function () { [].forEach.call(document.querySelectorAll('#floors span'), function (x) { x.classList.remove('on'); }); b.classList.add('on'); level(b.getAttribute('data-f'), 'level'); }); });
+
+  /* front desk */
+  var RAIL = [['Fun dives', 'boatSide', 1], ['Courses', 'card'], ['Rentals', 'fins'], ['Rooms', 'bunk'], ['Shop', 'mask']];
+  put('rail', RAIL.map(function (x) { return '<div class="' + (x[2] ? 'on' : '') + '"><span class="ico">' + ICON[x[1]]() + '</span>' + x[0] + '</div>'; }).join(''));
+  var TILES = [['AM 2-tank', '7:30 · 10/12', 'boatSide', ''], ['PM 2-tank', '1:30 · 8/12', 'boatSide', ''], ['Night dive', '6:00 · 4/8', 'boatSide', ''],
+    ['Deep (30 m)', 'Advanced card', 'tanks', '<span class="pill ok tag"><i>✓</i>ready</span>'], ['Whale-shark trip', 'when they show up', 'boatSide', ''], ['Wreck dive', 'needs Advanced', 'tanks', '<span class="pill plain tag">have it</span>'],
+    ['Rental set', 'BCD, reg, wetsuit', 'bcd', ''], ['Fins', 'by size', 'fins', ''], ['Mask', 'by size', 'mask', '']];
+  put('tiles', TILES.map(function (x) { return '<div class="tile"><div class="art">' + ICON[x[2]]() + '</div>' + x[3] + '<h3>' + x[0] + '</h3><div class="muted">' + x[1] + '</div></div>'; }).join(''));
+  var TK = [['boatSide', 'PM 2-tank', 'Black Hills · seat 9', ['2 tanks → fills'], 'L 1,200'], ['bcd', 'Rental set', 'his sizes from last time', ['BCD M', 'wetsuit 3 mm M', 'fins 9'], 'L 450'], ['bunk', 'Dorm bunk', 'over the office · 2 nights', ['bunk 3', 'free with diving'], 'L 0'], ['tanks', 'Nitrox', 'needs the Nitrox card', ['not on his card'], '—']];
+  put('ticket', TK.map(function (x, i) { return '<div class="line"' + (i === 3 ? ' style="opacity:.55"' : '') + '><span class="ico">' + ICON[x[0]]() + '</span><div><div class="b">' + x[1] + '</div><div class="muted">' + x[2] + '</div><div class="chips">' + x[3].map(function (c) { return '<span class="chip">' + c + '</span>'; }).join('') + '</div></div><span class="price">' + x[4] + '</span></div>'; }).join(''));
+
+  /* phones */
+  put('i-tank1', ICON.tank()); put('i-boat1', ICON.boatSide()); put('i-bed1', ICON.bunk()); put('i-fuel', ICON.fuel());
+  put('filler-art', svg('0 0 260 110', '<g transform="translate(18,0)">' + J.tankRack(0, 100, ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']) + '</g>'));
+  var SEATS = ['SB', 'AK', 'TM', 'JR', 'LP', 'MV', 'RC', 'DN', '', '', '', ''];
+  put('seats', SEATS.map(function (s, i) { return '<div class="seat"><div class="dot' + (s ? '' : ' empty') + '">' + (s || i + 1) + '</div><span class="muted">' + (s ? (i < 2 ? 'OW · student' : 'AOW') : 'open') + '</span></div>'; }).join(''));
+  put('beds', [1, 0, 0, 1].map(function (made) { return '<div style="text-align:center;width:70px">' + (made ? ICON.bedMade() : ICON.bed()).replace('<svg', '<svg style="width:70px;height:58px"') + '<span class="pill ' + (made ? 'ok' : 'busy') + '" style="margin-top:4px"><i>' + (made ? '✓' : '…') + '</i>' + (made ? 'made' : 'clean') + '</span></div>'; }).join(''));
+  put('g-boat', ICON.boatSide()); put('g-cup', ICON.cup()); put('g-bed', ICON.bunk()); put('g-card', ICON.card());
+  /* course progress as a growing coral: one piece per real step */
+  function coral(n) {
+    var h = '<ellipse cx="40" cy="70" rx="30" ry="7" fill="#E9D3BD"/>', cols = ['#F2A66B', '#EC7FA0', '#F7D365', '#7FC6D6', '#9B6BD6'], i;
+    if (n === 0) { return '<svg viewBox="0 0 80 80">' + h + '<circle cx="40" cy="64" r="4" fill="#C9B98A"/></svg>'; }
+    for (i = 0; i < n; i++) { var x = 40 + (i % 2 ? 1 : -1) * (6 + i * 4), top = 60 - 10 - i * 7; h += '<path d="M40,66 Q' + x + ',' + (top + 18) + ' ' + x + ',' + top + '" stroke="' + cols[i] + '" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="' + x + '" cy="' + top + '" r="6" fill="' + cols[i] + '"/>'; }
+    return '<svg viewBox="0 0 80 80">' + h + '</svg>';
+  }
+  var STEPS = [['Theory', 1], ['Pool', 2], ['Dives 1-2', 3], ['Dives 3-4', 0], ['Certified', 0]];
+  put('coral', STEPS.map(function (s, i) { return '<div' + (s[1] ? '' : ' style="opacity:.45"') + '>' + coral(s[1] ? i + 1 : 0) + s[0] + (s[1] ? ' ✓' : '') + '</div>'; }).join(''));
+
+  /* owner's day */
+  var B = [2, 5, 9, 12, 10, 6, 4, 3, 5, 11, 13, 8, 5, 3, 2, 4, 6, 3, 1, 1];
+  put('bars', B.map(function (v, i) { return '<i class="' + (i > 11 ? 'later' : '') + '" style="height:' + (v * 7 + 6) + 'px"></i>'; }).join(''));
+  put('d-fuel', ICON.fuel()); put('d-suit', ICON.suit());
+
+  /* ladders */
+  var BUB = function (inner, ring, pulse) { return '<circle cx="80" cy="64" r="54" fill="#CBE3E0"/><circle cx="80" cy="60" r="54" fill="#FFFFFF"/>' + (ring ? '<circle cx="80" cy="60" r="51" fill="none" stroke="' + ring + '" stroke-width="6"' + (pulse ? ' class="pulse"' : '') + '/>' : '') + inner; };
+  var G = function (inner) { return '<rect width="160" height="130" rx="16" fill="#F6DCC0"/>' + inner; };
+  var LAD = [
+    ['Tank rack', 'filler, DM, instructor, owner', [['Full', 'ok', G(J.tankRack(31, 112, [PC.tank, PC.tank, PC.tank]))], ['Filling', 'busy', G(J.tankRack(31, 112, [PC.tank, PC.tank, 'empty']))], ['Empties', 'low', G(J.tankRack(31, 112, ['empty', 'empty', 'empty']))], ['12 by 1:30', 'alert', G(BUB(at(26, 4, .66, J.tankRack(10, 120, ['empty', 'empty', 'empty'])), '#D9617E', true))]]],
+    ['Boat seats', 'desk, DM, guest', [['Open', null, G(seatsArt(0))], ['Filling', 'busy', G(seatsArt(2))], ['Full', 'ok', G(seatsArt(3))], ['Lines off', 'ok', G(at(80, 70, .32, '<g transform="rotate(90)">' + J.boat('db', 'dive', PC, { rows: 3 }) + '</g>') + J.wave(20, 110, 50) + J.wave(100, 30, 40))]]],
+    ['Boat fuel', 'DM, captain, owner', [['Full', 'ok', G(gauge(80, 92, 1))], ['Low', 'low', G(gauge(80, 92, .4))], null, ['Refill ASAP', 'alert', G(BUB('<g transform="translate(23,22) scale(.72)">' + gauge(80, 84, .1) + '</g>', '#D9617E', true))]]],
+    ['Rental gear (by size)', 'desk, DM', [['On the rack', 'ok', G(at(40, 16, 1, J.wetsuit(40, 6, C.gear, PC.soft)))], ['Out on a diver', 'busy', G(at(40, 16, 1, J.wetsuit(40, 6, '#C9CED3', '#E4E8EB')))], ['Soaking', 'busy', G(J.rinseBin(30, 40, 100, 56, PC.accent) + J.reg(70, 64))], ['Size out', 'low', G(BUB(at(40, 10, .8, J.wetsuit(40, 6, C.gear, PC.soft)), '#F2B632'))]]],
+    ['Bed', 'desk, housekeeping, own guest', [['Made, free', 'ok', G(J.bed(34, 26, 92, 64, PC.soft))], ['Occupied', 'busy', G(J.bed(34, 26, 92, 64, PC.accent))], null, ['To clean', 'busy', G(J.bed(34, 26, 92, 64, '#FFFFFF') + '<g transform="rotate(-8 80 76)">' + r(30, 54, 74, 38, PC.soft, 10) + '</g>')]]],
+    ['A course (your reef)', 'the diver, their instructor', [['Signed up', null, G('<g transform="translate(40,30)">' + coral(0).replace('<svg viewBox="0 0 80 80">', '').replace('</svg>', '') + '</g>')], ['Theory and pool', 'busy', G('<g transform="translate(40,30)">' + coral(2).replace('<svg viewBox="0 0 80 80">', '').replace('</svg>', '') + '</g>')], ['Ocean dives', 'busy', G('<g transform="translate(40,30)">' + coral(4).replace('<svg viewBox="0 0 80 80">', '').replace('</svg>', '') + '</g>')], ['Certified', 'ok', G('<g transform="translate(40,30)">' + coral(5).replace('<svg viewBox="0 0 80 80">', '').replace('</svg>', '') + '</g>')]]],
+    ['Today\'s water (shown, never scored)', 'everyone', [['Boats go', 'ok', G(J.diveFlag(52, 40, 0) + r(46, 40, 4, 70, C.woodDark, 2))], ['Sheltered side only', 'low', G(J.diveFlag(52, 40, 0) + r(46, 40, 4, 70, C.woodDark, 2) + J.wave(20, 110, 50) + J.wave(96, 100, 44))], null, ['No boats', 'alert', G(r(46, 40, 4, 70, C.woodDark, 2) + '<path d="M50,40 h40 l-10,12 10,12 h-40z" fill="#D9617E"/>' + J.wave(20, 110, 50) + J.wave(96, 96, 44) + J.wave(60, 80, 36))]]]
+  ];
+  function seatsArt(n) { var h = J.block(18, 74, 124, 18, '#FBFAF7', PC.accent, 10, 8), i; for (i = 0; i < 3; i++) { var cx = 40 + i * 40; h += i < n ? J.shadow(cx, 70, 14, 3) + '<circle cx="' + cx + '" cy="54" r="13" fill="#2E3238"/><circle cx="' + cx + '" cy="50" r="7" fill="#F2C9A5"/><rect x="' + (cx - 8) + '" y="48" width="16" height="5" rx="2.5" fill="' + PC.accent + '"/>' : '<circle cx="' + cx + '" cy="54" r="13" fill="none" stroke="#A7DCD8" stroke-width="3" stroke-dasharray="5 4"/>'; } return h; }
+  var MK = { ok: '✓', low: '!', alert: '!!', busy: '…' };
+  put('lads', LAD.map(function (L) {
+    return '<div style="margin-bottom:18px"><div class="row" style="margin:0 0 10px 4px"><h3>' + L[0] + '</h3><span class="grow"></span><span class="muted">sees it: ' + L[1] + '</span></div><div class="ladder">' +
+      L[2].map(function (g) { return g ? '<div class="rung">' + svg('0 0 160 130', g[2]) + '<div class="b">' + g[0] + '</div>' + (g[1] ? '<span class="pill ' + g[1] + '"><i>' + MK[g[1]] + '</i>' + g[1] + '</span>' : '<span class="pill plain">calm</span>') + '</div>' : '<div class="rung none">no rung here</div>'; }).join('') + '</div></div>';
+  }).join(''));
+})();
+</script>
+</body>
+</html>

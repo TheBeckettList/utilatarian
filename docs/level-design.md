@@ -3,7 +3,7 @@
 How to turn any real place (a cafe, a dive shop, a hostel, a ferry, a whole trip) into a **level of the same game Josie's
 Cafe already is**. Owned by the planning chat. The drawing rules live in `art/README.md`; this file is the game design on top
 of them: what a level is, how it plays, what it records, and what it is never allowed to cost the people in it.
-The visual version of these rules is `art/levels.html` (open it next to this file).
+The visual version of these rules is `art/levels.html` (open it next to this file). Dive shops have their own handbook built on this one: `docs/dive-shop-handbook.md`.
 
 > **Reality, gamified.** The game is the real day. The screen is a map of it that makes the day lighter, never a second job.
 

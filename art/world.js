@@ -369,10 +369,10 @@
      the white pier out to the dive boat */
   J.mini.paradise = function (p, c) {
     /* Paradise's simplified self for island maps, matching its level (art/level-paradise.js): warm plank floors, a blue wall band,
-       the palapa and kit-up bench on the beach, the white dock running south into the bay with its L and the Confined house,
+       the palapa and kit-up bench on the beach, the white dock running south into the bay to its shaded end platform,
        the dive boat alongside. On Utila the bay is south, so the dock points down here (the level is drawn with the sea at the top). */
     var h = '', wood = 'url(#' + p + '-plank)';
-    h += J.pier(p, -18, 40, 36, 190, true) + J.pier(p, -110, 200, 110, 30, false) + J.block(-170, 182, 62, 60, '#FFFFFF', '#D9E2E8', 8, 8) + r(-164, 188, 50, 46, C.water, 6);
+    h += J.pier(p, -18, 40, 36, 180, true) + r(-62, 214, 124, 70, 'url(#' + p + '-plank)', 6) + '<path d="M-62,220 L62,214 L52,280 L-48,272Z" fill="#E9D7A8" opacity=".75"/>';
     h += J.at(62, 150, 0, .42, J.boat(p, 'dive', c, { rows: 4 }));
     h += r(-160, -14, 320, 62, C.sand, 8) + J.palapa(p, 96, 14, 28) + J.block(-140, 8, 110, 10, C.wood, C.woodFront, 6, 4) + J.tank(-130, 12, c.tank) + J.tank(-100, 12, c.tank) + J.tank(-70, 12, c.tank2) + J.crab(10, 34);
     h += J.shadow(10, -6, 150, 12);

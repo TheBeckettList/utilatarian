@@ -10,7 +10,9 @@ Art ready (utilatarian/art/, plain ES5, no build; open art/world.html to see all
 - maps.js     UJ.maps.caribbean(W, H), UJ.maps.seasia(W, H): region strips (default 1000 x 640) with mainland and real ferry routes.
               UJ.maps.island(id, W, H, opts): island screen (default 1000 x 1100), spots in island units, long islands focused
               on their busy end (Roatán). All return { svg, W, H, targets: [{ id, box, tag }] }.
-- level-paradise.js   UJ.level.paradise(): Paradise as a level (1440 x 1300), returns { svg, W, H, targets, note }.
+- level-paradise.js   UJ.level.paradise({ floor: 'ground' | 'upstairs' }): Paradise redrawn from the owner's photos (1440 x 1430,
+              sea at the bottom), returns { svg, W, H, targets, note, floor }.
+- dive-board.html     the dive-shop board (every dive-shop screen, dive-shop palette); rules in docs/dive-shop-handbook.md.
 - world.js    J.mini.paradise restyled to match the level (same name and signature).
 - world.html  the board.
 
@@ -22,9 +24,12 @@ Behavior:
    opens the activity sheet. Your boat still pulls up in the open water below the island.
 3. If an island has more than 5 spots, maps.island draws the first 5 (priority order) and returns `hidden`; the island sheet lists
    the rest ("+N more on Utila").
-4. Paradise: use UJ.level.paradise() as the ground-floor map on the Paradise crew page (places/paradise/ops.html) and on its
-   Tripwrights planning view; keep its ids for pins (boat, fill-station, rooms, front-desk, dive-board, kit-up, confined).
-   The hostel rooms become their own level reached by the "rooms" target (draw later; keep the current level-2 drawing until then).
+4. Paradise: use UJ.level.paradise({ floor }) for both floors on the Paradise crew page (places/paradise/ops.html) and on its
+   Tripwrights planning view, with a Ground / Upstairs switch. Pin ids, ground: boat, fill-station, front-desk, classroom,
+   sitting-area, stairs, dock-end, sand. Upstairs: dorm-back, dorm-front, room-front, walkway, private-rooms. The old ids
+   (rooms, dive-board, kit-up, confined) are gone: the real shop has no L dock or Confined house.
+4b. Theme the Paradise pages with the dive-shop palette for chrome (data-place="dive-shop" from tokens.css) and Paradise's accent on
+   its own things; follow docs/dive-shop-handbook.md and the screens in art/dive-board.html.
 5. Pulse: the page needs `.pulse` CSS with a prefers-reduced-motion off switch (see art/world.html).
 6. Copy art/ into Tripwrights/art/ as usual; island.js, maps.js and level-paradise.js load after josie.js and world.js.
 

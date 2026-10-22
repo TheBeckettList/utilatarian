@@ -1,51 +1,78 @@
-/* Paradise (Utila), drawn as a level of Josie's game: the same oblique "room from above", warm floors, back walls with wainscot and
-   shutters, life in the corners, status bubbles where the work is. Needs josie.js, world.js, island.js. Plain ES5.
+/* Paradise Divers (Utila), drawn as a level of the dive-shop game: Josie's oblique "room from above", in Paradise's own colors
+   (white clapboard, teal-blue trim and railings, grey tin roofs, a thatched palapa, a raised white-sand platform behind a seawall).
+   Needs josie.js, world.js, island.js. Plain ES5.
 
-   STAND-IN: Paradise in Tripwrights is a stand-in dive shop until the real Paradise confirms it. The layout follows the owner's two
-   sketches and the satellite view (docs: HANDOVER), reshaped by the level-design rules:
+   Drawn from the owner's photos (2026-10-22: the aerial, the view from the dock, the sand platform, the dock end) and the owner's
+   notes. Sea at the bottom, as in the aerial and on Utila's map (the shop faces south over the harbour, 50 m left of the Main Pier).
+
+   West to east along the water:  covered stilt deck  |  rock shore + palapa  |  the dock, out to the shaded end platform
+                                  |  the raised sand platform (seawall of white pipe piles)  |  the neighbour's stilt restaurant
+   Inland:  the white gable building (2 floors, a grey shed-roof room at its front)  |  the breezeway with the stairs  |
+            the grey-roof building (2 floors): ground = sitting area (porch) at the front, the office, the classroom;
+            upstairs = the walkway on the inside third, rooms on the outer two thirds: a room over the sitting area, a dorm over the
+            office, a dorm over the classroom.
 
    RESHAPE NOTE (owner to confirm)
-     Cut:       nothing; the hostel rooms (R1, R2, dorm, full/single, level 2, suites A-D) move to their own level, "Rooms",
-                reached by the stairs (housekeeping and front desk work there; guests see their own room)
-     Kept:      the L dock and the Confined house, the dive boat alongside, the second mooring, the beach (kit-up, rinse bins,
-                shower, palapa, grill), the two buildings and the alley, the office and dive board facing the beach, the tank room
-     Merged:    drinks prep + kitchen (one room); regulator rinse + retail (one room); classroom + gear repair (side by side)
-     Moved:     nothing; sea at the top, office left, tank room at the inland end of the right building, Josie's to the west
-     Enlarged:  the dive boat and the dock (the place's signature)
-     Life:      crabs, a turtle, an eagle ray, reef fish, a pelican on the dock (stand-in joke until the owner picks one)
+     Confirmed by the owner:  the grey-roof building's ground and upstairs layout, the walkway (inside 1/3 under the roof peak).
+     From the photos:         dock and end platform (shade sail, benches, picnic table, hammock), dive boat alongside, sand platform
+                              with picnic tables, grill, kayaks and the pink tub, palapa on the rocks, stilt deck, blue dive-flag wall.
+     STAND-INS (not seen yet): inside the white gable building (kitchen and lounge below, two private en-suite rooms above), the gear
+                              room and compressor in its front shed room, the use of the stilt deck (drawn as the hammock deck),
+                              where the shared bathrooms are.
+     Cut:      the street side and the neighbours (only edges shown).   Enlarged: the dock and the boat (the signature).
+     Life:     crabs, a turtle, an eagle ray, reef fish, a pelican on a dock post (stand-in joke until the owner picks one).
 
-   J.level.paradise() returns { svg, W, H, targets, note }. Targets are the tap areas (same contract as the vessel's parts). */
+   J.level.paradise({ floor: 'ground' | 'upstairs' }) returns { svg, W, H, targets, note }. */
 (function (w) {
   'use strict';
   var J = w.UJ, C = J.C, I = J.isle, r = J.r, e = J.e;
   J.level = J.level || {};
   var P = 'pd';
   var PC = J.level.PARADISE = {
-    accent: '#3E86B8', deep: '#2E6E9E', soft: '#BFE0F2', pale: '#E6F2FA', pop: '#F2B632',
-    wallTop: '#8EC3E3', shutter: '#4F8FC0', shutterLine: '#FFFFFF', wainscot: '#DDEBF5', wainscotLine: '#C9DCEB', wallCream: '#FFF8EF', wallBase: '#EAD9C5',
-    whiteWood: '#FBFAF7', whiteLine: '#E3E7EA', tile: '#EEF1F3', tile2: '#E4E9ED', wall: '#FFFFFF', wallEdge: '#E3E7EA',
-    brickBase: '#E3D7CC', brick: '#EFE6DC', tank: '#3E86B8', tank2: '#F2F2EE'
+    accent: '#2479A8', deep: '#1B5E86', soft: '#BFE3EE', pale: '#E6F3F8', pop: '#F2C230', trim: '#2479A8', rail: '#2C6FA3',
+    wallTop: '#9AA7B0', shutter: '#2479A8', shutterLine: '#FFFFFF', wainscot: '#E7EEF2', wainscotLine: '#D3DEE5', wallCream: '#FBFBF8', wallBase: '#E2E6E8',
+    whiteWood: '#FBFAF7', whiteLine: '#E3E7EA', tile: '#EEF1F3', tile2: '#E4E9ED', wall: '#FFFFFF', wallEdge: '#DCE3E8',
+    brickBase: '#E3D7CC', brick: '#EFE6DC', tank: '#2479A8', tank2: '#F2F2EE', roof: '#A9B4BC', roofLine: '#96A2AB'
   };
-  var W = 1440, H = 1300;
+  var W = 1440, H = 1430;
+  var SAND2 = '#F7EDE0';                 /* the white sand of the raised platform */
 
-  /* a room seen from above: floor, white wall slabs with a ledge, the back wall (top) drawn as an elevation with an optional door */
+  /* a room from above: floor, wall slabs with a ledge, the back (inland) wall as an elevation.
+     o: { wins, door: [x, w] in the back wall, open: true (no front wall), front: [x0, x1] doorway in the front wall,
+          left: [y0, y1] / right: [y0, y1] doorways in the side walls, back: a color object for the back wall } */
   function room(x, y, wd, ht, floor, o) {
-    o = o || {}; var t = 12, h = r(x, y, wd, ht, floor), d;
-    function slab(a, b, ww, hh) { return r(a, b + 5, ww, hh, PC.wallEdge, 3) + r(a, b, ww, hh, '#FFFFFF', 3); }
-    h += J.backWall(P, x, y, wd, PC, o.wins || []);
-    if (o.door) { d = o.door; h += r(x + d[0], y, d[1], 96, '#F6DCC0') + r(x + d[0] - 6, y, 6, 96, C.woodFront, 2) + r(x + d[0] + d[1], y, 6, 96, C.woodFront, 2) + r(x + d[0] - 6, y - 4, d[1] + 12, 10, C.woodFront, 3); }
-    h += slab(x - t, y - t, t, ht + 2 * t) + slab(x + wd, y - t, t, ht + 2 * t) + slab(x - t, y - t, wd + 2 * t, t);
-    if (o.bottom) { h += slab(x - t, y + ht, o.bottom[0] - x + t, t) + slab(o.bottom[1], y + ht, x + wd + t - o.bottom[1], t); } else { h += slab(x - t, y + ht, wd + 2 * t, t); }
+    o = o || {}; var t = 12, h = r(x, y, wd, ht, floor), d, c = o.back || PC;
+    function slab(a, b, ww, hh) { return ww > 0 && hh > 0 ? r(a, b + 5, ww, hh, PC.wallEdge, 3) + r(a, b, ww, hh, '#FFFFFF', 3) : ''; }
+    function side(a, gap) { return gap ? slab(a, y - t, t, gap[0] - y + t) + slab(a, gap[1], t, y + ht + t - gap[1]) : slab(a, y - t, t, ht + 2 * t); }
+    if (o.backWall !== false) { h += J.backWall(P, x, y, wd, c, o.wins || []); }
+    if (o.door) { d = o.door; h += r(x + d[0], y, d[1], 96, o.doorFill || '#F1E3D2') + r(x + d[0] - 6, y, 6, 96, PC.trim, 2) + r(x + d[0] + d[1], y, 6, 96, PC.trim, 2) + r(x + d[0] - 6, y - 4, d[1] + 12, 10, PC.trim, 3); }
+    h += side(x - t, o.left) + side(x + wd, o.right) + slab(x - t, y - t, wd + 2 * t, t);
+    if (!o.open) { if (o.front) { h += slab(x - t, y + ht, o.front[0] - x + t, t) + slab(o.front[1], y + ht, x + wd + t - o.front[1], t); } else { h += slab(x - t, y + ht, wd + 2 * t, t); } }
     return h;
   }
+  function post(cx, cy, col) { return J.shadow(cx + 3, cy + 10, 10, 4) + '<rect x="' + (cx - 8) + '" y="' + (cy - 8) + '" width="16" height="22" rx="4" fill="' + (col || PC.trim) + '"/><rect x="' + (cx - 8) + '" y="' + (cy - 8) + '" width="16" height="10" rx="4" fill="#FFFFFF" opacity=".25"/>'; }
+  function railH(x, y, len, col) { var h = r(x, y + 4, len, 8, PC.deep, 3) + r(x, y, len, 8, col || PC.rail, 3), i; for (i = x + 18; i < x + len - 6; i += 22) { h += r(i, y + 8, 3, 14, col || PC.rail, 1); } return h; }
+  function railV(x, y, len, col) { return r(x + 3, y, 8, len, PC.deep, 3) + r(x, y, 8, len, col || PC.rail, 3); }
+  /* a picnic table from above: a wood top between two benches */
+  function picnic(cx, cy, rot) {
+    return '<g transform="translate(' + cx + ',' + cy + ') rotate(' + (rot || 0) + ')">' + J.shadow(4, 40, 70, 10) +
+      J.block(-70, -40, 140, 14, C.wood, C.woodFront, 7, 4) + J.block(-76, -14, 152, 34, C.wood, C.woodFront, 10, 5) + r(-70, -10, 140, 2, C.woodFront, 0, ' opacity=".5"') + r(-70, 0, 140, 2, C.woodFront, 0, ' opacity=".5"') +
+      J.block(-70, 30, 140, 14, C.wood, C.woodFront, 7, 4) + '</g>';
+  }
+  /* the seawall: a row of white pipe piles, seen from above-front */
+  function pilesH(x, y, len) { var h = r(x, y - 6, len, 12, '#E6E1DA', 3), i; for (i = x; i < x + len - 10; i += 24) { h += r(i, y, 20, 34, '#D6D9DC', 9) + r(i, y - 2, 20, 30, '#FFFFFF', 9) + r(i + 4, y + 4, 4, 20, '#EEF1F3', 2); } return h; }
+  function pilesV(x, y, len) { var h = r(x - 6, y, 12, len, '#E6E1DA', 3), i; for (i = y; i < y + len - 10; i += 24) { h += r(x, i, 26, 20, '#D6D9DC', 9) + r(x - 2, i, 26, 18, '#FFFFFF', 9); } return h; }
+  function shadeSail(x, y, wd, ht) { return '<path d="M' + x + ',' + (y + 10) + ' L' + (x + wd) + ',' + y + ' L' + (x + wd - 20) + ',' + (y + ht) + ' L' + (x + 30) + ',' + (y + ht - 16) + 'Z" fill="#E9D7A8" opacity=".78"/><path d="M' + x + ',' + (y + 10) + ' L' + (x + wd - 20) + ',' + (y + ht) + '" stroke="#D8C38E" stroke-width="3" opacity=".7"/>'; }
+  function pinkTub(cx, cy) { return J.shadow(cx + 4, cy + 30, 66, 10) + r(cx - 62, cy - 30, 124, 64, '#E79AAE', 26) + r(cx - 50, cy - 20, 100, 44, '#BFE6EE', 18) + r(cx - 44, cy - 14, 40, 5, '#FFFFFF', 3, ' opacity=".7"'); }
+  function dinghy(cx, cy, rot) { return '<g transform="translate(' + cx + ',' + cy + ') rotate(' + rot + ')">' + J.shadow(4, 8, 30, 60, .14) + r(-28, -56, 56, 112, '#EEF1F3', 26) + r(-28, -56, 56, 112, '#FFFFFF', 26, ' opacity=".7"') + r(-18, -40, 36, 84, '#2E3238', 16) + r(-20, -8, 40, 10, '#D9DEE2', 4) + r(-6, 52, 12, 14, C.gear, 3) + '</g>'; }
   function bubble(cx, cy, rad, inner, ring, pulse) {
     return '<circle cx="' + cx + '" cy="' + (cy + 5) + '" r="' + rad + '" fill="#D9E2E8"/><circle cx="' + cx + '" cy="' + cy + '" r="' + rad + '" fill="#FFFFFF"/>' +
       (ring ? '<circle cx="' + cx + '" cy="' + cy + '" r="' + (rad - 3) + '" fill="none" stroke="' + ring + '" stroke-width="6"' + (pulse ? ' class="pulse"' : '') + '/>' : '') + inner;
   }
   function statusPill(cx, cy, word, kind) {
     var bg = { ok: '#D9F0E8', low: '#FBEBC5', alert: '#F9D6D6', busy: '#EEE7EA' }[kind], ink = { ok: '#2F6B58', low: '#8A5C00', alert: '#8E2F3F', busy: '#6E5560' }[kind], mk = { ok: '✓', low: '!', alert: '!!', busy: '…' }[kind];
-    var s = 1.5, label = mk + ' ' + word, wd = (label.length * 7.6 + 20) * s, hh = 26 * s;
-    return r(cx - wd / 2, cy - hh / 2 + 4, wd, hh, '#E2D7CC', hh / 2) + r(cx - wd / 2, cy - hh / 2, wd, hh, bg, hh / 2) +
+    var label = mk + ' ' + word, wd = (label.length * 7.6 + 20) * 1.5, hh = 39;
+    return r(cx - wd / 2, cy - hh / 2 + 4, wd, hh, '#D3DADF', hh / 2) + r(cx - wd / 2, cy - hh / 2, wd, hh, bg, hh / 2) +
       '<text x="' + cx + '" y="' + (cy + 8) + '" font-family="Baloo 2, Nunito, sans-serif" font-weight="800" font-size="22" fill="' + ink + '" text-anchor="middle">' + label + '</text>';
   }
   function gauge(cx, cy, frac, s) {
@@ -55,84 +82,124 @@
     var n = pt(1 - frac);
     return '<g transform="translate(' + cx + ',' + cy + ') scale(' + s + ') translate(' + (-cx) + ',' + (-cy) + ')">' + h + '<path d="M' + cx + ',' + cy + ' L' + n[0].toFixed(1) + ',' + n[1].toFixed(1) + '" stroke="#5B3843" stroke-width="5" stroke-linecap="round"/><circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#5B3843"/></g>';
   }
-  function wetsuitRail(x, y, n) { var h = r(x - 10, y - 14, n * 46 + 20, 6, C.woodDark, 3), i; for (i = 0; i < n; i++) { h += J.wetsuit(x + 22 + i * 46, y - 6, i === 1 ? '#3B4249' : C.gear, i === 1 ? PC.accent : PC.soft); } return h; }
+  function roofTin(x, y, wd, ht, vertical) { var h = r(x + 6, y + 8, wd, ht, '#3B4249', 6, ' opacity=".12"') + r(x, y, wd, ht, PC.roof, 6), i; if (vertical) { for (i = x + 12; i < x + wd; i += 16) { h += r(i, y, 3, ht, PC.roofLine, 1); } } else { for (i = y + 12; i < y + ht; i += 16) { h += r(x, i, wd, 3, PC.roofLine, 1); } } return h; }
 
-  J.level.paradise = function () {
-    var h = J.defs(P, PC), t = [];
-    /* ---- the sea, with Josie's two bands and foam ---- */
-    h += r(0, 0, W, 330, C.water) + '<path d="M0,0 H1440 V120 C1200,140 900,104 600,128 C380,146 160,118 0,134Z" fill="' + C.deep + '"/>';
-    h += I.reef(250, 200, 120, 40, 4) + I.reef(1160, 180, 110, 46, 7) + I.reef(980, 70, 70, 26, 9);
-    h += I.school(1180, 190, 9, 30, 1.1) + I.ray(300, 70, .7, 12) + J.turtle(1320, 90, .9, 30);
-    h += J.wave(120, 270, 70) + J.wave(380, 60, 60) + J.wave(1220, 270, 70) + J.wave(1040, 40, 50);
-    /* shore: foam, wet sand, sand */
-    h += '<path d="M0,316 C240,296 420,330 700,312 C960,296 1180,326 1440,306 V1240 H0Z" fill="#FFF1E2"/><path d="M0,330 C240,310 420,344 700,326 C960,310 1180,340 1440,320 V1240 H0Z" fill="#F2D2B4"/><path d="M0,348 C240,330 420,360 700,344 C960,330 1180,358 1440,340 V1240 H0Z" fill="#F6DCC0"/>';
-    /* ---- the L dock, the Confined house, the boats ---- */
-    h += J.pier(P, 680, 70, 64, 290, true) + J.pier(P, 420, 70, 270, 60, false);
-    /* Confined: a white deck house at the end of the L, with the confined-water pen beside it */
-    h += J.shadow(370, 210, 120, 14) + J.block(260, 40, 170, 150, '#FFFFFF', '#D9E2E8', 16, 14) + r(276, 56, 138, 118, C.water, 10) + r(286, 70, 60, 6, '#FFFFFF', 3, ' opacity=".7"') + r(392, 60, 14, 66, C.steel, 4) +
-      r(398, 72, 4, 4, '#FFFFFF') + r(398, 90, 4, 4, '#FFFFFF') + r(398, 108, 4, 4, '#FFFFFF') + J.lifeRing(244, 110, .9);
-    /* the dive boat alongside the dock (the signature, enlarged), the second boat on its mooring */
-    h += J.at(838, 214, 0, .9, J.boat(P, 'dive', PC, { rows: 5 })) + '<path d="M760,150 Q790,160 806,150" stroke="' + C.plum + '" stroke-width="2.4" fill="none" stroke-dasharray="4 3"/>';
-    h += J.at(560, 228, -6, .56, J.boat(P, 'dive', { accent: '#7FB5D8', soft: '#E6F2FA', tank: '#9CCBE6', tank2: '#F2F2EE' }, { rows: 3 })) + '<circle cx="520" cy="300" r="9" fill="#F2B632"/><circle cx="520" cy="298" r="9" fill="#FFD166"/><path d="M528,296 Q546,286 556,276" stroke="' + C.plum + '" stroke-width="2" fill="none" stroke-dasharray="3 3"/>';
-    /* the pelican on a dock post (stand-in joke) */
-    h += J.at(756, 330, 0, .9, J.pelican(0, 0));
-    /* ---- neighbors at the edges: Josie's to the west, the restaurant building to the east ---- */
-    h += r(0, 360, 66, 940, 'url(#' + P + '-plankV)') + J.umbrella(30, 470, 46, '#F5B5C8', '#FFFFFF') + J.chair(40, 600, '#F5B5C8', '#F8CAD7');
-    h += r(1380, 380, 60, 920, '#FFFFFF') + r(1380, 380, 60, 14, '#E8C3A0') + r(1376, 380, 6, 920, '#EADFD5');
-    /* ---- the beach ---- */
-    /* kit-up: a long wood bench, three rigs ready (BCD on a tank), rinse bins */
-    h += J.shadow(260, 470, 170, 10) + J.block(100, 430, 330, 22, C.wood, C.woodFront, 12, 6);
-    h += J.tank(130, 432, PC.tank) + J.bcd(141, 380, C.gear) + J.tank(230, 432, PC.tank) + J.bcd(241, 380, C.gear) + J.tank(330, 432, PC.tank) + J.bcd(341, 380, '#3B4249');
-    h += J.rinseBin(120, 492, 80, 46, PC.accent) + J.rinseBin(220, 492, 80, 46, PC.accent) + J.rinseBin(320, 492, 80, 46, PC.soft);
-    h += J.outdoorShower(480, 520) + J.fins(560, 500, C.gear, PC.accent) + J.mask(600, 520, C.gear, C.gear);
-    /* the palapa with its stools, the grill, the big tree, rocks */
-    h += J.palapa(P, 1000, 450, 78) + J.stool(900, 488, PC.soft) + J.stool(1074, 494, '#F2B632') + J.stool(1000, 524, '#9FD6C2');
-    h += J.grill(1150, 470) + J.lounger(840, 380, PC.soft);
-    h += J.at(1270, 440, 0, .62, J.tree(0, 0, 1)) + J.rock(80, 336, .55, 1) + J.rock(1330, 330, .7, 3) + J.rock(1250, 336, .4, 5) + J.crab(470, 360) + J.crab(1110, 352);
-    /* ---- the buildings ---- */
-    var L = 100, LR = 640, R0 = 800, RR = 1340, top = 580;
-    /* office + dive board, facing the beach (door in the beach wall) */
-    h += room(L, top, LR - L, 260, 'url(#' + P + '-plank)', { wins: [L + 30, L + 400], door: [180, 80] });
-    h += J.board(L + 300, top + 8, 120, 80, PC) + J.counter(L + 40, top + 150, 250, 50, '#FFFFFF', PC.soft) + J.screen(L + 200, top + 156, PC) + J.lamp(L + 150, top, 22) + J.lamp(L + 400, top, 22);
-    h += J.stool(L + 90, top + 214, PC.accent) + J.stool(L + 150, top + 214, '#F2B632') + J.stool(L + 210, top + 214, '#9FD6C2') + J.plant(L + 480, top + 250, .7) + J.plant(L + 330, top + 250, .5);
-    /* classroom and gear repair, side by side */
-    h += room(L, top + 290, 260, 230, 'url(#' + P + '-tile)', { wins: [L + 110] }) + room(L + 280, top + 290, LR - L - 280, 230, 'url(#' + P + '-plank)', { wins: [] });
-    h += J.table(L + 40, top + 410, 180, 54) + J.chair(L + 70, top + 476, PC.accent, PC.soft) + J.chair(L + 130, top + 476, '#9FD6C2', '#C6EBDD') + J.chair(L + 190, top + 476, '#F2B632', '#F8D67E');
-    h += J.block(L + 300, top + 400, 220, 40, C.wood, C.woodFront, 14, 8) + J.reg(L + 340, top + 414) + J.mask(L + 420, top + 418, C.gear, C.gear) + J.lamp(L + 410, top + 290, 22) + J.plant(L + 520, top + 512, .55);
-    /* the stairs to the Rooms level */
-    h += room(L, top + 550, LR - L, 150, 'url(#' + P + '-plank)', { wins: [L + 60] });
-    /* wood steps climbing to the right, each a little lighter: the way up to the Rooms level */
-    var sx = L + 330, i, steps = ['#B98F68', '#C49A72', '#CFA67D', '#D9B48A', '#E2C29C', '#EACFAE'];
-    for (i = 0; i < 6; i++) { h += J.block(sx + i * 32, top + 610 - i * 6, 32, 60 + i * 6, steps[i], C.woodFront, 8, 3); }
-    h += J.plant(L + 40, top + 690, .55);
-    /* the alley: bikes and a scooter (future rentals) */
-    h += r(LR + 10, top - 10, R0 - LR - 20, H - top + 10, '#EBCDB0') + J.bike(LR + 60, top + 120, PC.accent, 0) + J.bike(LR + 100, top + 150, '#F2B632', 8) + J.scooter(LR + 82, top + 330, PC.accent, -4) + J.plant(LR + 50, top + 520, .55) + J.plant(LR + 120, top + 600, .5);
-    /* drinks prep + kitchen, facing the beach */
-    h += room(R0, top, RR - R0, 210, 'url(#' + P + '-tile)', { wins: [R0 + 300], door: [60, 80] });
-    h += J.counter(R0 + 170, top + 120, 330, 46, '#FFFFFF', PC.accent) + J.block(R0 + 30, top + 100, 110, 70, C.glass, C.glassDk, 14, 8) + r(R0 + 40, top + 108, 26, 50, '#FFFFFF', 4, ' opacity=".7"') + J.lamp(R0 + 260, top, 20) + J.lamp(R0 + 420, top, 20) + J.plant(R0 + 500, top + 200, .6);
-    h += '<circle cx="' + (R0 + 220) + '" cy="' + (top + 126) + '" r="12" fill="#F2B632"/><circle cx="' + (R0 + 250) + '" cy="' + (top + 128) + '" r="10" fill="#9FD6C2"/>' + r(R0 + 290, top + 104, 22, 30, '#E8895C', 6) + r(R0 + 380, top + 110, 40, 22, C.steel, 6);
-    /* retail + regulator rinse */
-    h += room(R0, top + 240, RR - R0, 220, 'url(#' + P + '-plank)', { wins: [R0 + 380] });
-    h += wetsuitRail(R0 + 40, top + 360, 3) + J.fins(R0 + 230, top + 440, C.gear, PC.accent) + J.fins(R0 + 280, top + 440, '#3B4249', PC.soft);
-    h += J.shelf(R0 + 330, top + 340, 160) + J.mask(R0 + 360, top + 334, C.gear) + J.mask(R0 + 430, top + 334, PC.accent) + J.rinseBin(R0 + 360, top + 380, 140, 60, PC.accent) + J.reg(R0 + 400, top + 404) + J.reg(R0 + 450, top + 410);
-    /* the tank room at the inland end: racks and the compressor */
-    h += room(R0, top + 490, RR - R0, 210, 'url(#' + P + '-tile)', {});
-    h += J.tankRack(R0 + 30, top + 680, [PC.tank, PC.tank, PC.tank, 'empty', 'empty']) + J.tankRack(R0 + 210, top + 680, ['empty', 'empty', 'empty', 'empty', 'empty']) + J.compressor(R0 + 380, top + 680, PC.accent);
+  /* ---------------- the outdoors, shared by both floors ---------------- */
+  var L0 = 320, L1 = 600, B0 = 612, B1 = 678, R0 = 690, R1 = 1050, TOP = 120;
+  function outdoors() {
+    var h = '';
+    /* the street side and the trees behind */
+    h += r(0, 0, W, H, '#F6DCC0') + r(0, 0, W, 70, '#EAD7C3') + r(0, 70, W, 6, '#E0CBB4') + J.at(150, 260, 0, .5, J.tree(0, 0, 1)) + J.at(1250, 170, 0, .4, J.tree(0, 0, 1)) + J.plant(1120, 140, .7) + J.plant(250, 120, .6);
+    /* the water: in front of the stilt deck, the rock shore, under the dock, round the sand platform's seawall */
+    h += '<path d="M0,640 L300,640 C330,690 380,740 460,770 C520,792 560,800 652,800 L652,930 L1122,930 L1122,620 L1440,620 L1440,1430 L0,1430Z" fill="' + C.water + '"/>' +
+      '<path d="M0,1250 C300,1230 520,1270 800,1246 C1080,1222 1260,1260 1440,1240 V1430 H0Z" fill="' + C.deep + '"/>' +
+      '<path d="M300,640 C330,690 380,740 460,770 C520,792 560,800 652,800" stroke="#FFF1E2" stroke-width="10" fill="none" stroke-linecap="round"/>';
+    h += I.reef(200, 1100, 110, 40, 4) + I.reef(1230, 1060, 120, 50, 7) + I.reef(1000, 1340, 90, 30, 9) + I.school(1200, 1080, 9, 30, 1.1) + I.ray(230, 1330, .7, 12) + J.turtle(1010, 1130, .9, -150) + J.wave(380, 1010, 60) + J.wave(1300, 840, 60) + J.wave(900, 1290, 50);
+    /* the neighbour's stilt restaurant to the east (edge only) */
+    h += r(1150, 300, 290, 420, 'url(#' + P + '-plank)') + r(1150, 300, 290, 14, '#FFFFFF') + r(1146, 300, 8, 420, '#FFFFFF') + J.chair(1220, 430, '#5FB9B0', '#9FD6CF') + J.chair(1300, 440, '#5FB9B0', '#9FD6CF') + J.roundTable(1262, 470, 24, { noPot: true }) + J.chair(1240, 590, '#5FB9B0', '#9FD6CF') + J.roundTable(1300, 610, 24, { noPot: true });
+    for (var k = 0; k < 4; k++) { h += J.woodPost(1160 + k * 90, 730); }
+    /* the covered stilt deck to the west (the hammock deck: stand-in use) */
+    h += r(40, 520, 260, 330, 'url(#' + P + '-plankV)', 8) + r(40, 520, 260, 10, '#FFFFFF') + J.woodPost(44, 850) + J.woodPost(170, 856) + J.woodPost(296, 850) + J.woodPost(40, 700);
+    h += J.hammock(70, 600, 200, 640, '#F2A66B') + J.hammock(70, 720, 200, 760, PC.soft) + J.block(240, 560, 40, 250, C.wood, C.woodFront, 8, 6);
+    /* the rock shore (coral rubble) and the palapa on it */
+    h += J.rock(340, 730, .5, 2) + J.rock(560, 790, .45, 6) + J.rock(610, 800, .32, 8) + J.rock(320, 690, .4, 9);
+    h += J.stool(390, 718, PC.pop) + J.stool(520, 724, PC.soft) + J.palapa(P, 456, 742, 62) + J.rock(440, 800, .5, 4);
+    /* the raised sand platform behind its seawall, in front of the grey-roof building */
+    h += r(B1, 680, 1122 - B1, 250, SAND2) + pilesH(652, 924, 470) + pilesV(1110, 640, 290);
+    h += J.block(B1 + 6, 700, 26, 200, C.wood, C.woodFront, 8, 6);                                  /* the long bench along the dock side */
+    h += picnic(800, 760, -6) + picnic(960, 780, 4) + J.grill(990, 860) + pinkTub(820, 870) + J.kayak(1072, 790, 110, '#E8604C', 0) + J.crab(900, 712) + J.crab(1060, 890);
+    /* the dock out to the shaded end platform; the boat alongside, bow to sea */
+    h += J.pier(P, 568, 790, 72, 470, true);
+    h += r(456, 1240, 300, 170, 'url(#' + P + '-plank)', 8) + J.woodPost(458, 1240) + J.woodPost(754, 1240) + J.woodPost(458, 1410) + J.woodPost(754, 1410);
+    h += J.block(470, 1252, 270, 16, C.wood, C.woodFront, 8, 4) + J.block(470, 1252, 16, 130, C.wood, C.woodFront, 8, 4) + picnic(610, 1330, 0) + J.hammock(700, 1270, 740, 1380, '#E8604C') + shadeSail(470, 1240, 300, 150);
+    h += J.at(720, 1080, 180, .82, J.boat(P, 'dive', PC, { rows: 5 })) + '<path d="M650,990 Q668,980 684,990" stroke="' + C.plum + '" stroke-width="2.4" fill="none" stroke-dasharray="4 3"/>';
+    h += J.at(642, 980, 0, .8, J.pelican(0, 0)) + dinghy(400, 1280, 20);
+    return h;
+  }
+
+  /* ---------------- ground floor ---------------- */
+  function ground() {
+    var h = '', t = [];
+    /* the white gable building: kitchen at the back, the lounge in front (STAND-INS), and the open shed-roof gear room at its front */
+    h += room(L0, TOP, L1 - L0, 200, 'url(#' + P + '-tile)', { wins: [L0 + 40], right: [TOP + 120, TOP + 190] });
+    h += J.counter(L0 + 30, TOP + 112, 160, 44, '#FFFFFF', PC.soft) + J.block(L0 + 200, TOP + 100, 60, 60, C.steelLt, C.steel, 14, 8) + e(L0 + 214, TOP + 116, 8, 6, C.gear) + e(L0 + 244, TOP + 116, 8, 6, C.gear) + J.lamp(L0 + 110, TOP, 20);
+    h += room(L0, TOP + 220, L1 - L0, 200, 'url(#' + P + '-plank)', { wins: [L0 + 60, L0 + 170], right: [TOP + 330, TOP + 400] });
+    h += J.armchair(L0 + 70, TOP + 400, PC.accent, PC.soft) + J.rug(L0 + 150, TOP + 360, 70, 30, { accent: PC.soft, soft: '#FFFFFF' }) + J.armchair(L0 + 220, TOP + 400, '#F2A66B', '#F6C49B') + J.plant(L0 + 260, TOP + 410, .55);
+    /* the gear room: open to the shore under its shed roof; tanks, the compressor, wetsuits, rinse bins */
+    h += room(L0, TOP + 440, 250, 130, '#E9E2D9', { open: true, backWall: false });
+    h += J.tankRack(L0 + 10, TOP + 520, [PC.tank, PC.tank, PC.tank, 'empty']) + J.compressor(L0 + 130, TOP + 536, PC.accent) + post(L0, TOP + 570, '#FFFFFF') + post(L0 + 246, TOP + 570, '#FFFFFF');
+    /* the breezeway between the buildings, the stairs up at its inland end, the yellow post at its mouth */
+    h += r(B0, TOP - 10, B1 - B0, 590, '#EFE3D4') + J.plant(B0 + 30, TOP + 520, .55);
+    var steps = ['#B98F68', '#C49A72', '#CFA67D', '#D9B48A', '#E2C29C', '#EACFAE'], i;
+    for (i = 0; i < 6; i++) { h += J.block(B0 + 6, TOP + 200 - i * 28, B1 - B0 - 12, 26, steps[i], C.woodFront, 6, 3); }
+    h += post(B0 + 10, TOP + 560, PC.pop);
+    /* the grey-roof building: classroom at the back, the office, the sitting area (porch) at the front */
+    h += room(R0, TOP, R1 - R0, 240, 'url(#' + P + '-tile)', { wins: [R0 + 60, R0 + 230], left: [TOP + 150, TOP + 220] });
+    h += J.board(R0 + 140, TOP + 8, 110, 76, PC) + J.table(R0 + 70, TOP + 140, 220, 54) + J.chair(R0 + 110, TOP + 206, PC.accent, PC.soft) + J.chair(R0 + 180, TOP + 206, '#F2C230', '#F8DE7E') + J.chair(R0 + 250, TOP + 206, '#5FB9B0', '#9FD6CF') + J.lamp(R0 + 180, TOP, 20);
+    h += room(R0, TOP + 260, R1 - R0, 170, 'url(#' + P + '-plank)', { wins: [R0 + 250], left: [TOP + 330, TOP + 400], front: [R0 + 140, R0 + 220] });
+    h += J.board(R0 + 30, TOP + 268, 100, 70, PC) + J.counter(R0 + 40, TOP + 360, 180, 44, '#FFFFFF', PC.accent) + J.screen(R0 + 150, TOP + 364, PC) + J.mask(R0 + 290, TOP + 380, C.gear, C.gear) + J.mask(R0 + 318, TOP + 404, PC.accent) + J.plant(R0 + 330, TOP + 420, .5) + J.lamp(R0 + 120, TOP + 260, 20);
+    /* the porch: its back wall is the office's front, painted blue with the dive flag */
+    var blue = { wallTop: PC.roof, wallCream: '#2C6FA3', wainscot: '#2C6FA3', wainscotLine: '#255F8C', wallBase: '#E2E6E8', shutter: '#FFFFFF', shutterLine: PC.accent };
+    h += room(R0, TOP + 450, R1 - R0, 130, 'url(#' + P + '-plankV)', { open: true, back: blue });
+    h += J.diveFlag(R0 + 236, TOP + 470, 0).replace('<g transform="translate(' + (R0 + 236) + ',' + (TOP + 470) + ') rotate(0)">', '<g transform="translate(' + (R0 + 236) + ',' + (TOP + 470) + ') scale(2.2)">') +
+      r(R0 + 30, TOP + 462, 130, 6, '#FFFFFF', 3, ' opacity=".5"') + r(R0 + 30, TOP + 476, 90, 6, '#FFFFFF', 3, ' opacity=".35"');
+    h += J.block(R0 + 30, TOP + 560, 200, 18, C.wood, C.woodFront, 8, 5) + railH(R0, TOP + 580, 130) + railH(R0 + 230, TOP + 580, R1 - R0 - 230) + post(R0, TOP + 584) + post(R0 + 130, TOP + 584) + post(R0 + 230, TOP + 584) + post(R1, TOP + 584);
     /* ---- status bubbles (sample states) ---- */
-    /* the boat's fuel: low (amber) */
-    h += bubble(930, 110, 50, gauge(930, 128, .36, .7), '#F2B632') + statusPill(930, 184, 'low', 'low');
-    /* a tank request with a deadline: loud, pulsing (the one loud thing on screen) */
-    h += bubble(R0 + 200, top + 556, 56, J.at(R0 + 200, top + 556, 0, .56, J.tankRack(-56, 40, ['empty', 'empty', 'empty'])), '#D9617E', true) + statusPill(R0 + 200, top + 634, '12 by 1:30', 'alert');
-    /* rooms to clean, at the stairs (housekeeping) */
-    h += bubble(L + 230, top + 620, 46, J.at(L + 230, top + 628, 0, .55, J.bed(-46, -40, 92, 60, PC.soft)), null) + statusPill(L + 230, top + 684, '3 to clean', 'busy');
-    /* ---- targets ---- */
-    t.push({ id: 'boat', box: [770, 40, 140, 360], tag: [930, 184] });
-    t.push({ id: 'fill-station', box: [R0, top + 490, RR - R0, 210], tag: [R0 + 200, top + 634] });
-    t.push({ id: 'rooms', box: [L, top + 550, LR - L, 150], tag: [L + 230, top + 684] });
-    t.push({ id: 'front-desk', box: [L + 40, top + 140, 260, 90], tag: [L + 165, top + 250] });
-    t.push({ id: 'dive-board', box: [L + 290, top, 140, 100], tag: [L + 360, top + 110] });
-    t.push({ id: 'kit-up', box: [100, 370, 330, 170], tag: [265, 560] });
-    t.push({ id: 'confined', box: [244, 30, 190, 180], tag: [345, 214] });
-    return { svg: h, W: W, H: H, targets: t, note: 'Stand-in: Paradise is a stand-in shop until the real Paradise confirms it. The hostel rooms are their own level, reached by the stairs. Bubbles show sample states: fuel low, a tank request due 1:30 (the one loud thing), rooms to clean.' };
+    h += bubble(L0 - 30, TOP + 470, 50, J.at(L0 - 30, TOP + 474, 0, .5, J.tankRack(-56, 40, ['empty', 'empty', 'empty'])), '#D9617E', true) + statusPill(L0 - 30, TOP + 540, '12 by 1:30', 'alert');
+    h += bubble(850, 1100, 50, gauge(850, 1118, .36, .7), '#F2B632') + statusPill(850, 1170, 'low', 'low');
+    h += bubble(R0 + 300, TOP + 300, 44, J.at(R0 + 300, TOP + 306, 0, .55, J.boat(P, 'dive', PC, { rows: 2 })).replace('scale(0.55)', 'scale(.26)'), null) + statusPill(R0 + 300, TOP + 362, 'PM boat 8/12', 'busy');
+    t.push({ id: 'boat', box: [650, 940, 150, 300], tag: [850, 1170] });
+    t.push({ id: 'fill-station', box: [L0, TOP + 440, 250, 140], tag: [L0 - 30, TOP + 540] });
+    t.push({ id: 'front-desk', box: [R0, TOP + 260, R1 - R0, 170], tag: [R0 + 300, TOP + 360] });
+    t.push({ id: 'classroom', box: [R0, TOP, R1 - R0, 240], tag: [R0 + 180, TOP + 250] });
+    t.push({ id: 'sitting-area', box: [R0, TOP + 450, R1 - R0, 140], tag: [R0 + 180, TOP + 600] });
+    t.push({ id: 'stairs', box: [B0, TOP, B1 - B0, 220], tag: [B0 + 33, TOP + 230] });
+    t.push({ id: 'dock-end', box: [456, 1240, 300, 170], tag: [606, 1230] });
+    t.push({ id: 'sand', box: [B1, 680, 1122 - B1, 250], tag: [900, 700] });
+    return { svg: h, targets: t };
+  }
+
+  /* ---------------- upstairs ---------------- */
+  function upstairs() {
+    var h = '<rect width="' + W + '" height="' + H + '" fill="#FFFFFF" opacity=".42"/>', t = [], i;
+    /* the white gable building upstairs: two private rooms, two doubles each, en-suite (STAND-INS until the owner confirms) */
+    [[TOP, 'url(#' + P + '-plank)'], [TOP + 230, 'url(#' + P + '-plank)']].forEach(function (rm, k) {
+      var y = rm[0];
+      h += room(L0, y, L1 - L0, 210, rm[1], { wins: [L0 + 40], right: [y + 140, y + 200] });
+      h += J.bed(L0 + 20, y + 110, 90, 70, k ? PC.soft : '#F2C9A5') + J.bed(L0 + 126, y + 110, 90, 70, PC.soft) + r(L1 - 64, y + 104, 56, 96, '#EEF4F8', 6) + J.toilet(L1 - 48, y + 116) + J.ac(L0 + 150, y + 6);
+    });
+    h += roofTin(L0, TOP + 450, 250, 130, true);                                                     /* the gear room's shed roof */
+    /* the stair landing in the breezeway */
+    h += r(B0, TOP - 10, B1 - B0, 260, '#EACFAE') + r(B0, TOP - 10, B1 - B0, 260, 'url(#' + P + '-plankV)');
+    /* the grey-roof building upstairs: the walkway on the inside third, the rooms on the outer two thirds */
+    var WK = R0 + Math.round((R1 - R0) / 3);
+    h += r(R0, TOP - 10, WK - R0, 600, 'url(#' + P + '-plankV)') + railV(R0 - 4, TOP + 250, 330) + railH(R0, TOP + 584, WK - R0);
+    h += J.plant(R0 + 30, TOP + 560, .5);
+    h += room(WK, TOP, R1 - WK, 240, 'url(#' + P + '-plank)', { wins: [WK + 90], left: [TOP + 160, TOP + 220] });                 /* dorm over the classroom */
+    h += J.bunk(WK + 30, TOP + 110, 70, 50, PC.accent, PC.soft) + J.bunk(WK + 130, TOP + 110, 70, 50, PC.soft, PC.accent) + J.plant(R1 - 40, TOP + 230, .45);
+    h += room(WK, TOP + 260, R1 - WK, 170, 'url(#' + P + '-plank)', { wins: [WK + 90], left: [TOP + 360, TOP + 420] });          /* dorm over the office */
+    h += J.bunk(WK + 30, TOP + 360, 70, 44, PC.accent, PC.soft) + J.bunk(WK + 130, TOP + 360, 70, 44, PC.soft, PC.accent);
+    h += room(WK, TOP + 450, R1 - WK, 140, 'url(#' + P + '-plank)', { wins: [WK + 90], left: [TOP + 520, TOP + 580] });          /* the room over the sitting area */
+    h += J.bed(WK + 40, TOP + 540, 110, 34, '#F2C9A5') + J.plant(R1 - 36, TOP + 580, .45);
+    for (i = 0; i < 3; i++) { h += post(R0 + 4, TOP + 30 + i * 200, PC.trim); }
+    /* bubbles: housekeeping and the front desk upstairs */
+    h += bubble(WK + 120, TOP + 300, 44, J.at(WK + 120, TOP + 306, 0, .5, J.bed(-46, -40, 92, 60, PC.soft)), null) + statusPill(WK + 120, TOP + 360, '2 to clean', 'busy');
+    h += bubble(WK + 170, TOP + 70, 40, J.at(WK + 170, TOP + 76, 0, .44, J.bed(-46, -40, 92, 60, PC.accent)), null) + statusPill(WK + 170, TOP + 124, '6 / 8 beds', 'ok');
+    t.push({ id: 'dorm-back', box: [WK, TOP, R1 - WK, 240], tag: [WK + 170, TOP + 124] });
+    t.push({ id: 'dorm-front', box: [WK, TOP + 260, R1 - WK, 170], tag: [WK + 120, TOP + 360] });
+    t.push({ id: 'room-front', box: [WK, TOP + 450, R1 - WK, 140], tag: [WK + 120, TOP + 600] });
+    t.push({ id: 'walkway', box: [R0, TOP, WK - R0, 590], tag: [R0 + 60, TOP + 600] });
+    t.push({ id: 'private-rooms', box: [L0, TOP, L1 - L0, 440], tag: [L0 + 140, TOP + 450] });
+    return { svg: h, targets: t };
+  }
+
+  J.level.paradise = function (o) {
+    o = o || {};
+    var up = o.floor === 'upstairs', body = up ? upstairs() : ground();
+    return {
+      svg: J.defs(P, PC) + outdoors() + body.svg, W: W, H: H, targets: body.targets, floor: up ? 'upstairs' : 'ground',
+      note: up ? 'Upstairs. Grey-roof building: the walkway on the inside third, a dorm over the classroom, a dorm over the office, a room over the sitting area (owner). White building: two private en-suite rooms (stand-ins until seen).'
+        : 'Ground floor, sea at the bottom as in the aerial. Grey-roof building: sitting area, office, classroom (owner). White building interiors, the gear room and the hammock deck use are stand-ins. Bubbles show sample states.'
+    };
   };
 })(window);
