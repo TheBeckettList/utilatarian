@@ -46,6 +46,10 @@ see `PC` in `places/paradise/map.js` and `TC` in `Tripwrights/rig.js`. `kit.js` 
 
 ## Pieces
 
+- `island.js`: **the island kit**, Josie's bay-map hand (`josiescafe/art/bay.js`) at island scale: rough real coastlines for every island we sail to, density (0 quiet .. 3 dense) that decides houses, roads and boats, reefs, cays, stilt houses, ferries, longtails, critters, and activity spots capped at five per island.
+- `maps.js`: Tripwrights' region strips (`UJ.maps.caribbean`, `UJ.maps.seasia`) and island screens (`UJ.maps.island(id)`), with tap targets in the vessel's contract.
+- `level-paradise.js`: Paradise drawn as a level of Josie's game, with its reshape note.
+- `world.html`: **the world board**, all of the above in one page (`?targets` outlines the tap areas).
 - `levels.html`: **the level board**, the game design drawn: build a level (photos, blocks, art pass), state ladders, bubbles, the 2-for-1 step ledger. Rules in `docs/level-design.md`.
 - `palettes.json`: **the one source of truth** for every color. Edit here.
 - `tools/build-art.mjs` (repo root): `node tools/build-art.mjs` writes `tokens.css` and `palettes.js` from it.

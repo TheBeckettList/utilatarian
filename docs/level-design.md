@@ -202,10 +202,10 @@ Seen in today's build (screenshots taken 2026-10-22):
 
 | Where | Drift | Fix |
 |---|---|---|
-| Tripwrights region and home | free-floating outlined text on the map ("Utila", "Roatán", "Cover", "The globe", "Getting here") | names go in anchored pill bubbles (law of section 5) |
-| Tripwrights region | "soon" tags are red text on white | use the place-pill style with the `busy` … mark, or a dimmed island |
+| Tripwrights region and home | free-floating outlined text on the map ("Utila", "Roatán", "Cover", "The globe", "Getting here") | art ready: `UJ.maps.*` draws names in pills (spec `docs/specs/world-redraw.md`) |
+| Tripwrights region | "soon" tags are red text on white | art ready: faded pill "· soon" in `UJ.maps.*` |
 | Tripwrights header | cooler blue chrome, no ledge pills | Josie's header pattern in Tripwrights' sea blue |
-| Paradise crew page | system font, generic blue buttons, map full-width with no list | Baloo/Nunito, ledge pills, Overview layout (map + "do this next" list) |
+| Paradise crew page | system font, generic blue buttons, map full-width with no list | Baloo/Nunito, ledge pills, Overview layout (map + "do this next" list); art ready: `UJ.level.paradise()` |
 | Paradise crew page | seven role buttons in the header | role is who you are, not a tab: pick once on sign-in; the demo keeps a small "View as" pill |
 | Paradise boat fuel | bubble with a gauge and the words "Fuel low" | keep the gauge, pill says "low" with ! |
 
@@ -294,7 +294,30 @@ the beach and rocks, the deck. Enlarged: the tree, the iguana.* (Owner to confir
 
 ---
 
-## 11. Level checklist (run before a level is shown to anyone)
+## 11. The world layer: regions and islands
+
+Josie's has two references, and every map uses one of them:
+
+| Scale | Reference | Used for | Kit |
+|---|---|---|---|
+| Inside a place | her cafe board (`josiescafe/design/boards/Josies.html`, `img/world/map.png`) | levels: Josie's, Paradise, the next shop | `josie.js`, `world.js`, `level-*.js` |
+| An island or a region | her bay map (`josiescafe/art/bay.js`) | Tripwrights' region strips and island screens | `island.js`, `maps.js` |
+
+Rules for the world layer:
+- **Real shape, honest density.** Outlines are rough traces of the real coast; towns sit on the real shore. How busy an island looks
+  (houses, roads, boats) comes from its density, so Utila reads as a town on a bay and Koh Samui as a ring road lined with houses.
+  Small islands may be enlarged next to big ones so they can be tapped; the ratio stays in code.
+- **Five spots at most per island**, like the map in a farming game. More than five: the first five by priority are drawn and the
+  island sheet lists the rest.
+- **Places that have joined are drawn as themselves** in their own colors (`J.mini.*`), with a pill. Every other spot is a real
+  area or activity, drawn as a small landmark on a sand clearing, faded and marked soon. Nothing invents a business.
+- **Names live in pills**, sized for phone width (the art is drawn 1000 wide and shown at about 40%, so words are drawn about 2x).
+- **Long islands focus on their busy end** and let the rest run off the edge (Roatán's island screen shows the west end).
+- **Routes are real**: ferry and boat routes are soft dashed white paths with a dot at each end.
+
+---
+
+## 12. Level checklist (run before a level is shown to anyone)
 
 - [ ] Built from preset blocks; the reshape note is signed off by the owner.
 - [ ] Map traced from the real place; stand-ins labeled.

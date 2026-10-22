@@ -368,13 +368,21 @@
   /* Paradise: two parallel white buildings with the blue strip and the alley between, the beach with the palapa and a tank rack,
      the white pier out to the dive boat */
   J.mini.paradise = function (p, c) {
-    var h = '';
-    /* the white pier runs south from the beach into the bay, the dive boat alongside */
-    h += J.pier(p, -18, 40, 36, 200, true) + J.at(62, 170, 0, .42, J.boat(p, 'dive', c, { rows: 4 }));
-    h += r(-150, -14, 300, 60, C.sand) + J.palapa(p, 80, 10, 30) + J.tankRack(-128, 34, [c.tank, c.tank, c.tank2, c.tank]) + J.umbrella(-34, 10, 22, c.soft, '#FFFFFF');
+    /* Paradise's simplified self for island maps, matching its level (art/level-paradise.js): warm plank floors, a blue wall band,
+       the palapa and kit-up bench on the beach, the white dock running south into the bay with its L and the Confined house,
+       the dive boat alongside. On Utila the bay is south, so the dock points down here (the level is drawn with the sea at the top). */
+    var h = '', wood = 'url(#' + p + '-plank)';
+    h += J.pier(p, -18, 40, 36, 190, true) + J.pier(p, -110, 200, 110, 30, false) + J.block(-170, 182, 62, 60, '#FFFFFF', '#D9E2E8', 8, 8) + r(-164, 188, 50, 46, C.water, 6);
+    h += J.at(62, 150, 0, .42, J.boat(p, 'dive', c, { rows: 4 }));
+    h += r(-160, -14, 320, 62, C.sand, 8) + J.palapa(p, 96, 14, 28) + J.block(-140, 8, 110, 10, C.wood, C.woodFront, 6, 4) + J.tank(-130, 12, c.tank) + J.tank(-100, 12, c.tank) + J.tank(-70, 12, c.tank2) + J.crab(10, 34);
     h += J.shadow(10, -6, 150, 12);
-    [[-140, 116], [14, 116]].forEach(function (b) { h += r(b[0] - 6, -156, b[1] + 12, 150, '#D9E2E8', 6) + r(b[0] - 6, -160, b[1] + 12, 150, '#FFFFFF', 6) + r(b[0], -154, b[1], 138, 'url(#' + p + '-white)') + r(b[0], -154, b[1], 8, c.wallTop || c.soft) + r(b[0], -108, b[1], 4, c.soft) + r(b[0], -62, b[1], 4, c.soft); });
-    h += r(-18, -154, 26, 138, '#EFD2B3') + J.bed(-126, -96, 36, 24, c.accent) + J.bed(-78, -96, 36, 24, c.soft) + J.counter(26, -142, 64, 24, '#FFFFFF', c.accent) + J.tank(96, -60, c.tank) + J.tank(72, -60, c.tank2) + J.tank(48, -60, c.tank);
+    [[-146, 120], [22, 120]].forEach(function (b) {
+      h += r(b[0] - 7, -158, b[1] + 14, 150, '#E3E7EA', 6) + r(b[0] - 7, -162, b[1] + 14, 150, '#FFFFFF', 6) + r(b[0], -156, b[1], 138, wood) +
+        r(b[0], -156, b[1], 10, c.wallTop || c.soft) + r(b[0], -146, b[1], 14, c.wainscot || '#DDEBF5') + r(b[0], -148, b[1], 3, '#FFFFFF') + r(b[0], -88, b[1], 6, '#FFFFFF');
+    });
+    h += r(-26, -156, 48, 138, '#EBCDB0') + J.counter(-130, -120, 80, 24, '#FFFFFF', c.soft) + J.screen(-80, -116, c) + J.lamp(-100, -156, 10) + J.plant(-48, -24, .4);
+    h += J.tankRack(30, -26, [c.tank, c.tank, c.tank2]) + J.wetsuit(110, -140, C.gear, c.soft) + J.wetsuit(126, -136, C.gear, c.accent);
     return h;
   };
+
 })(window);
