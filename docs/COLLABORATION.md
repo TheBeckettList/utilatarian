@@ -19,6 +19,10 @@ How the **planning chat** (a Claude project: ideas, design, decisions, art) and 
 
 The owner (the dev and idea person) makes the final call and shares the demo with Tripwrights' owner (a friend who runs the travel company).
 
+Since 2026-10-23 the planning chat is the **Studio** chat: the one chat in the "Utilitarian P/OS" Claude project connected to the
+repos. It also draws for other worlds in the same house style (a pizza business themed around cars, Foundaition), each planned in
+its own "World" chat in that project. The chat map is `STUDIO.md` in the project's knowledge; the shared look is `docs/house-style.md`.
+
 ## 3. Repos, branches, links
 
 | Repo | Role | Branch to use |
